@@ -202,6 +202,7 @@ function Visualiser(): JSX.Element {
     const selectStyle: React.CSSProperties = {
         height: `${(isMobile ? 50 : 25).toString()}%`,
         width: `${(isMobile ? 50 : 100).toString()}%`,
+        background: "#363434",
     };
 
     return (

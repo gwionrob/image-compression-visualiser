@@ -31,6 +31,7 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
     const ddStyle: React.CSSProperties = {
         height: `${(50).toString()}%`,
         width: `${(45).toString()}%`,
+        background: "#363434",
     };
 
     const options: Array<JSX.Element> = [];
