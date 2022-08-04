@@ -15,9 +15,11 @@ function Visualiser(): JSX.Element {
     const [k, setK] = useState<number>(3);
     const [columns, setNoOfColumns] = useState<number>(3);
     const [rows, setNoOfRows] = useState<number>(3);
+    const [isHue, setIsHue] = useState<boolean>(false);
     const [colors, setColors] = useState<Array<RGB>>(
         Array(rows * columns).fill({ r: 0, g: 0, b: 0 }),
     );
+    const [colAvg, setColAvg] = useState<RGB>({ r: 0, g: 0, b: 0 });
     const [displayColPick, setDisplayColPick] = useState<boolean>(false);
     const [selectedPixels, setSelectedPixels] = useState<Array<HTMLDivElement>>(
         [],
@@ -53,15 +55,21 @@ function Visualiser(): JSX.Element {
             dragSelect.subscribe("callback", (e: CallbackObject) => {
                 if (e.items !== undefined) {
                     setSelectedPixels(e.items);
+                    const selectedColors: Array<Array<number>> = [];
+                    const colArray: Array<Array<number>> = colors.map((col) =>
+                        Object.values(col),
+                    );
                     e.items.forEach((el: HTMLDivElement) => {
                         el.classList.add("selected");
+                        selectedColors.push(colArray[parseInt(el.id, 10)]);
                     });
                     setDisplayColPick(true);
+                    setColAvg(kMeans(selectedColors, 1)[0]);
                     dragSelect.stop();
                 }
             });
         }
-    }, [pixelRefs, targetRef, rows, columns, displayColPick]);
+    }, [rows, columns, displayColPick, colors]);
 
     const mByN = (m: number, n: number) => {
         if (m === rows && n === columns) {
@@ -89,25 +97,20 @@ function Visualiser(): JSX.Element {
         setColors(colorsCopy);
     };
 
-    const onColMouseUpMethod = (event: React.MouseEvent) => {
-        event.preventDefault();
+    const onColInitMethod = (event: React.MouseEvent | React.TouchEvent) => {
+        if (event.type === "mousedown") event.preventDefault();
         if (event.target instanceof Element) {
-            if (event.target.className.includes("hue")) {
-                return;
+            if (event.target.ariaLabel === "Hue") {
+                setIsHue(true);
             }
         }
-        selectedPixels.forEach((el) => {
-            el.classList.remove("selected");
-        });
-        setDisplayColPick(false);
     };
 
-    const onTouchEndMethod = (event: React.TouchEvent) => {
+    const onColEndMethod = (event: React.MouseEvent | React.TouchEvent) => {
         event.preventDefault();
-        if (event.target instanceof Element) {
-            if (event.target.className.includes("hue")) {
-                return;
-            }
+        if (isHue) {
+            setIsHue(false);
+            return;
         }
         selectedPixels.forEach((el) => {
             el.classList.remove("selected");
@@ -145,6 +148,7 @@ function Visualiser(): JSX.Element {
                 b: Math.floor(Math.random() * 255),
             });
         }
+        document.querySelector(".ds-selector-area")!.remove();
         setColors(randCol);
     };
 
@@ -198,6 +202,7 @@ function Visualiser(): JSX.Element {
     const selectStyle: React.CSSProperties = {
         height: `${(isMobile ? 50 : 25).toString()}%`,
         width: `${(isMobile ? 50 : 100).toString()}%`,
+        background: "#363434",
     };
 
     return (
@@ -236,8 +241,11 @@ function Visualiser(): JSX.Element {
                 {displayColPick ? (
                     <RgbColorPicker
                         onChange={onColChangeMethod}
-                        onMouseUp={onColMouseUpMethod}
-                        onTouchEnd={onTouchEndMethod}
+                        onMouseDown={onColInitMethod}
+                        onTouchStart={onColInitMethod}
+                        onMouseUp={onColEndMethod}
+                        onTouchEnd={onColEndMethod}
+                        color={colAvg}
                     />
                 ) : null}
             </div>
