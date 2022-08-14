@@ -75,7 +75,7 @@ function Visualiser(): JSX.Element {
         if (m === rows && n === columns) {
             return;
         }
-        document.querySelector(".ds-selector-area")!.remove();
+        document.querySelector(".ds-selector-area")?.remove();
         setNoOfRows(m);
         setNoOfColumns(n);
         if (m * n >= colors.length) {
@@ -148,7 +148,7 @@ function Visualiser(): JSX.Element {
                 b: Math.floor(Math.random() * 255),
             });
         }
-        document.querySelector(".ds-selector-area")!.remove();
+        document.querySelector(".ds-selector-area")?.remove();
         setColors(randCol);
     };
 
