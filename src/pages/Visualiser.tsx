@@ -42,7 +42,7 @@ function Visualiser(): JSX.Element {
 
     useEffect(() => {
         if (displayColPick || document.querySelector(".ds-selector-area")) {
-            return;
+            return undefined;
         }
 
         if (targetRef.current !== null) {
@@ -69,6 +69,10 @@ function Visualiser(): JSX.Element {
                 }
             });
         }
+
+        return () => {
+            document.querySelector(".ds-selector-area")?.remove();
+        };
     }, [rows, columns, displayColPick, colors]);
 
     const mByN = (m: number, n: number) => {
