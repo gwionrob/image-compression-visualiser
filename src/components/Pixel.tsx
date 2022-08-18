@@ -1,4 +1,4 @@
-import React, { LegacyRef, useState } from "react";
+import React, { LegacyRef } from "react";
 
 type RGB = { r: number; g: number; b: number };
 type Props = {
@@ -9,11 +9,7 @@ type Props = {
 };
 
 function Pixel({ id, innerRef, color, style }: Props) {
-    const [displayColPick, setDisplayColPick] = useState<boolean>(false);
-
-    const onClickMethod = () => {
-        setDisplayColPick(!displayColPick);
-    };
+    const pixelCol = color === undefined ? { r: 0, g: 0, b: 0 } : color;
 
     return (
         <div className="pixel-container" id={id} ref={innerRef} style={style}>
@@ -22,9 +18,8 @@ function Pixel({ id, innerRef, color, style }: Props) {
                 aria-label="pixel-button"
                 className="pixel"
                 style={{
-                    background: `rgb(${color.r}, ${color.g}, ${color.b})`,
+                    background: `rgb(${pixelCol.r}, ${pixelCol.g}, ${pixelCol.b})`,
                 }}
-                onClick={onClickMethod}
             />
         </div>
     );

@@ -76,21 +76,30 @@ function Visualiser(): JSX.Element {
     }, [rows, columns, displayColPick, colors]);
 
     const mByN = (m: number, n: number) => {
-        if (m === rows && n === columns) {
-            return;
-        }
+        if (m === rows && n === columns) return;
         document.querySelector(".ds-selector-area")?.remove();
-        setNoOfRows(m);
-        setNoOfColumns(n);
-        if (m * n >= colors.length) {
+        if (m > rows) {
             setColors(
                 colors.concat(
                     Array(m * n - colors.length).fill({ r: 0, g: 0, b: 0 }),
                 ),
             );
-        } else {
+        } else if (n > columns) {
+            const newColors = colors;
+            for (let i = 1; i <= m; i++) {
+                colors.splice(i * n - 1, 0, { r: 0, g: 0, b: 0 });
+            }
+            setColors(newColors);
+        } else if (m < rows) {
             setColors(colors.slice(0, m * n));
+        } else if (n < columns) {
+            for (let i = 1; i <= m; i++) {
+                colors.splice(i * n, 1);
+            }
+            setColors(colors);
         }
+        setNoOfRows(m);
+        setNoOfColumns(n);
     };
 
     const onColChangeMethod = (color: RGB) => {
@@ -180,8 +189,11 @@ function Visualiser(): JSX.Element {
     };
 
     const pixels: Array<JSX.Element> = [];
+    let pixelRow: Array<JSX.Element> = [];
+    let rowId = 0;
+
     for (let i = 0; i < columns * rows; i++) {
-        pixels.push(
+        pixelRow.push(
             <Pixel
                 id={i.toString()}
                 key={i}
@@ -192,6 +204,15 @@ function Visualiser(): JSX.Element {
                 style={pixelStyle}
             />,
         );
+        if (pixelRow.length === columns) {
+            pixels.push(
+                <div className="pixel-row" key={rowId}>
+                    {pixelRow}
+                </div>,
+            );
+            rowId += 1;
+            pixelRow = [];
+        }
     }
 
     const optionsK: Array<JSX.Element> = [];
