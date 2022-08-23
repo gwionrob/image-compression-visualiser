@@ -8,7 +8,7 @@ import sideImg from "../images/sidebar-icon.png";
 
 const toTitle = (title: string) => {
     let newTitle: string =
-        title === "" ? "Recreational Image Compression" : title;
+        title === "" ? "Image Compression Visualiser" : title;
     if (title.charAt(0) === ":") {
         newTitle = title.slice(1);
     }

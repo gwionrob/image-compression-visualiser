@@ -26,19 +26,19 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
             if (event.deltaY < 0) {
                 if (mOrN === "m") {
                     const newM = parseInt(mSelectRef.current.value, 10) + 1;
-                    if (!(newM > (isMobile ? 9 : 16)) && newM !== 0)
+                    if (!(newM > (isMobile ? 16 : 25)) && newM !== 0)
                         mByN(newM, n);
                 } else {
                     const newN = parseInt(nSelectRef.current.value, 10) + 1;
-                    if (!(newN > (isMobile ? 9 : 16)) && newN !== 0)
+                    if (!(newN > (isMobile ? 16 : 25)) && newN !== 0)
                         mByN(m, newN);
                 }
             } else if (mOrN === "m") {
                 const newM = parseInt(mSelectRef.current.value, 10) - 1;
-                if (!(newM > (isMobile ? 9 : 16)) && newM !== 0) mByN(newM, n);
+                if (!(newM > (isMobile ? 16 : 25)) && newM !== 0) mByN(newM, n);
             } else {
                 const newN = parseInt(nSelectRef.current.value, 10) - 1;
-                if (!(newN > (isMobile ? 9 : 16)) && newN !== 0) mByN(m, newN);
+                if (!(newN > (isMobile ? 16 : 25)) && newN !== 0) mByN(m, newN);
             }
         }
     };
@@ -59,7 +59,7 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
     };
 
     const options: Array<JSX.Element> = [];
-    const maxOptions: number = isMobile ? 10 : 17;
+    const maxOptions: number = isMobile ? 17 : 26;
     for (let i = 1; i < maxOptions; i++) {
         options.push(
             <option value={i} key={i}>

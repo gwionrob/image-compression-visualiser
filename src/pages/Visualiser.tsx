@@ -76,7 +76,7 @@ function Visualiser(): JSX.Element {
     }, [rows, columns, displayColPick, colors]);
 
     const mByN = (m: number, n: number) => {
-        if (m === rows && n === columns) return;
+        if ((m === rows && n === columns) || m * n === 1) return;
         document.querySelector(".ds-selector-area")?.remove();
         if (m > rows) {
             setColors(
@@ -97,6 +97,9 @@ function Visualiser(): JSX.Element {
                 colors.splice(i * n, 1);
             }
             setColors(colors);
+        }
+        if (k + 1 > m * n) {
+            setK(m * n - 1);
         }
         setNoOfRows(m);
         setNoOfColumns(n);
