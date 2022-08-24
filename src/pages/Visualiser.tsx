@@ -5,7 +5,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import CompressButton from "../components/CompressButton";
 import MByNDropdown from "../components/MByNDropdown";
 import Pixel from "../components/Pixel";
-import XByXButton from "../components/XByXButton";
 import kMeans from "../utilities/kmeans";
 import useIsMobile from "../hooks/useIsMobile";
 
@@ -228,7 +227,7 @@ function Visualiser(): JSX.Element {
     }
 
     const selectStyle: React.CSSProperties = {
-        height: `${(isMobile ? 50 : 25).toString()}%`,
+        height: `${(isMobile ? 50 : 20).toString()}%`,
         width: `${(isMobile ? 50 : 100).toString()}%`,
         background: "#363434",
     };
@@ -236,6 +235,7 @@ function Visualiser(): JSX.Element {
     return (
         <div className="visualiser">
             <div className="compression">
+                <MByNDropdown m={rows} n={columns} mByN={mByN} />
                 <select
                     ref={compSelectRef}
                     onChange={onCompSelect}
@@ -262,7 +262,10 @@ function Visualiser(): JSX.Element {
                     </div>
                 ) : null}
                 <CompressButton onClick={onCompress} title="Compress" />
-                <CompressButton onClick={onRandomize} title="Random Colors" />
+                <CompressButton
+                    onClick={onRandomize}
+                    title="Randomize Colors"
+                />
             </div>
             <div className="portrait" ref={targetRef} style={portraitStyle}>
                 {pixels}
@@ -276,12 +279,6 @@ function Visualiser(): JSX.Element {
                         color={colAvg}
                     />
                 ) : null}
-            </div>
-            <div className="dropdown">
-                <XByXButton x={3} mByN={mByN} />
-                <XByXButton x={5} mByN={mByN} />
-                <XByXButton x={7} mByN={mByN} />
-                <MByNDropdown m={rows} n={columns} mByN={mByN} />
             </div>
         </div>
     );

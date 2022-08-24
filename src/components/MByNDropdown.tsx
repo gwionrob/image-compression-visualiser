@@ -26,25 +26,23 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
             if (event.deltaY < 0) {
                 if (mOrN === "m") {
                     const newM = parseInt(mSelectRef.current.value, 10) + 1;
-                    if (!(newM > (isMobile ? 16 : 25)) && newM !== 0)
-                        mByN(newM, n);
+                    if (!(newM > 16 && newM !== 0)) mByN(newM, n);
                 } else {
                     const newN = parseInt(nSelectRef.current.value, 10) + 1;
-                    if (!(newN > (isMobile ? 16 : 25)) && newN !== 0)
-                        mByN(m, newN);
+                    if (!(newN > 16) && newN !== 0) mByN(m, newN);
                 }
             } else if (mOrN === "m") {
                 const newM = parseInt(mSelectRef.current.value, 10) - 1;
-                if (!(newM > (isMobile ? 16 : 25)) && newM !== 0) mByN(newM, n);
+                if (!(newM > 16) && newM !== 0) mByN(newM, n);
             } else {
                 const newN = parseInt(nSelectRef.current.value, 10) - 1;
-                if (!(newN > (isMobile ? 16 : 25)) && newN !== 0) mByN(m, newN);
+                if (!(newN > 16) && newN !== 0) mByN(m, newN);
             }
         }
     };
 
     const containerStyle: React.CSSProperties = {
-        height: `${(isMobile ? 50 : 25).toString()}%`,
+        height: `${(isMobile ? 50 : 20).toString()}%`,
         width: `${(100).toString()}%`,
         display: "flex",
         flexDirection: "row",

@@ -14,7 +14,7 @@ function CompressButton({ onClick, title }: Props): JSX.Element {
     };
 
     const style: React.CSSProperties = {
-        height: `${(isMobile ? 50 : 25).toString()}%`,
+        height: `${(isMobile ? 50 : 20).toString()}%`,
         width: `${(isMobile ? 50 : 100).toString()}%`,
     };
 
