@@ -19,7 +19,12 @@ function CompressButton({ onClick, title }: Props): JSX.Element {
     };
 
     return (
-        <button type="button" onClick={onClickHandler} style={style}>
+        <button
+            className="text-white bg-zinc-800 cursor-pointer border-2 border-teal-50 rounded-xl font-mono text-3xl"
+            type="button"
+            onClick={onClickHandler}
+            style={style}
+        >
             {title}
         </button>
     );

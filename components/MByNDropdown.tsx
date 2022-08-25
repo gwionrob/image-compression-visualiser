@@ -44,21 +44,15 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
     const containerStyle: React.CSSProperties = {
         height: `${(isMobile ? 50 : 20).toString()}%`,
         width: `${(100).toString()}%`,
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
     };
 
     const ddStyle: React.CSSProperties = {
         height: `${(50).toString()}%`,
         width: `${(45).toString()}%`,
-        background: "#363434",
     };
 
     const options: Array<JSX.Element> = [];
-    const maxOptions: number = isMobile ? 17 : 26;
-    for (let i = 1; i < maxOptions; i++) {
+    for (let i = 1; i < 17; i++) {
         options.push(
             <option value={i} key={i}>
                 {i}
@@ -67,8 +61,12 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
     }
 
     return (
-        <div className="m-by-n-dd" style={containerStyle}>
+        <div
+            className="flex items-center justify-between"
+            style={containerStyle}
+        >
             <select
+                className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full"
                 style={ddStyle}
                 ref={mSelectRef}
                 value={m}
@@ -78,8 +76,9 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
             >
                 {options}
             </select>
-            <div className="x">x</div>
+            <div className="text-white font-mono text-3xl">x</div>
             <select
+                className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full"
                 style={ddStyle}
                 ref={nSelectRef}
                 value={n}

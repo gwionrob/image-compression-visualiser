@@ -12,11 +12,16 @@ function Pixel({ id, innerRef, color, style }: Props) {
     const pixelCol = color === undefined ? { r: 0, g: 0, b: 0 } : color;
 
     return (
-        <div className="pixel-container" id={id} ref={innerRef} style={style}>
+        <div
+            className="relative border-2 border-teal-50 rounded-xl overflow-hidden"
+            id={id}
+            ref={innerRef}
+            style={style}
+        >
             <button
+                className="h-full w-full border-none cursor-pointer"
                 type="button"
                 aria-label="pixel-button"
-                className="pixel"
                 style={{
                     background: `rgb(${pixelCol.r}, ${pixelCol.g}, ${pixelCol.b})`,
                 }}
