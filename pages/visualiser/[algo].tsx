@@ -84,11 +84,10 @@ function Visualiser(): JSX.Element {
                 ),
             );
         } else if (n > columns) {
-            const newColors = colors;
             for (let i = 1; i <= m; i++) {
                 colors.splice(i * n - 1, 0, { r: 0, g: 0, b: 0 });
             }
-            setColors(newColors);
+            setColors(colors);
         } else if (m < rows) {
             setColors(colors.slice(0, m * n));
         } else if (n < columns) {
@@ -221,7 +220,7 @@ function Visualiser(): JSX.Element {
     };
 
     return (
-        <div className="flex items-center justify-evenly m-auto flex-col sm:flex-row mt-[3vh] h-screen-90 w-screen-95">
+        <div className="flex items-center justify-evenly m-auto flex-col sm:flex-row h-screen-90 w-screen-95">
             <div className="flex flex-wrap relative justify-center content-center h-[calc(90vh-95vw)/2] w-full sm:h-full sm:w-screen-20 sm:float-left">
                 <MByNDropdown m={rows} n={columns} mByN={mByN} />
                 <select

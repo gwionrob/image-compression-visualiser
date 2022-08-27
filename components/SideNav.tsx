@@ -20,7 +20,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
 
     return (
         <div
-            className="flex flex-col h-full fixed z-10 top-0 left-0 bg-zinc-900 transition duration-500 ease-linear overflow-hidden"
+            className="flex flex-col h-full fixed z-10 top-0 left-0 bg-zinc-900 transition-all duration-500 ease-out overflow-hidden"
             style={{ width: navWidth }}
         >
             <button
@@ -67,7 +67,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 Visualiser
             </button>
             <div
-                className="flex flex-col transition duration-200 ease-in ml-[50px] overflow-hidden"
+                className="flex flex-col transition-all duration-200 ease-in ml-[50px] overflow-hidden"
                 style={{ height: ddHeight }}
             >
                 <Link href="/visualiser/k-means">
