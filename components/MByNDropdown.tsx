@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { TouchEventHandler, useState, useRef } from "react";
 import useIsMobile from "../hooks/useIsMobile";
 
 type Props = {
@@ -10,6 +10,7 @@ type Props = {
 function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
     const mSelectRef = useRef<HTMLSelectElement>(null);
     const nSelectRef = useRef<HTMLSelectElement>(null);
+    const [touchPos, setTouchPos] = useState<number>(0);
     const isMobile: boolean = useIsMobile();
 
     const changeHandler = () => {
@@ -43,13 +44,38 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
         }
     };
 
+    const touchMoveHandler = (event: React.TouchEvent<HTMLSelectElement>) => {
+        if (mSelectRef.current === null || nSelectRef.current === null) return;
+        if (event.target instanceof HTMLSelectElement) {
+            const mOrN = event.target.id;
+            if (event.touches[0].clientY < touchPos) {
+                if (mOrN === "m") {
+                    const newM = parseInt(mSelectRef.current.value, 10) + 1;
+                    if (newM <= (isMobile ? 16 : 25) && newM !== 0)
+                        mByN(newM, n);
+                } else {
+                    const newN = parseInt(nSelectRef.current.value, 10) + 1;
+                    if (newN <= (isMobile ? 16 : 25) && newN !== 0)
+                        mByN(m, newN);
+                }
+            } else if (mOrN === "m") {
+                const newM = parseInt(mSelectRef.current.value, 10) - 1;
+                if (newM <= (isMobile ? 16 : 25) && newM !== 0) mByN(newM, n);
+            } else {
+                const newN = parseInt(nSelectRef.current.value, 10) - 1;
+                if (newN <= (isMobile ? 16 : 25) && newN !== 0) mByN(m, newN);
+            }
+            setTouchPos(event.touches[0].clientY);
+        }
+    };
+
     const containerStyle: React.CSSProperties = {
-        height: `${(isMobile ? 50 : 20).toString()}%`,
+        height: `${(isMobile ? 100 / 3 : 20).toString()}%`,
         width: `${(100).toString()}%`,
     };
 
     const ddStyle: React.CSSProperties = {
-        height: `${(50).toString()}%`,
+        height: `${(isMobile ? 90 : 50).toString()}%`,
         width: `${(45).toString()}%`,
     };
 
@@ -75,6 +101,7 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
                 id="m"
                 onChange={changeHandler}
                 onWheel={scrollHandler}
+                onTouchMove={touchMoveHandler}
             >
                 {options}
             </select>
@@ -87,6 +114,7 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
                 id="n"
                 onChange={changeHandler}
                 onWheel={scrollHandler}
+                onTouchMove={touchMoveHandler}
             >
                 {options}
             </select>

@@ -168,14 +168,17 @@ function Visualiser(): JSX.Element {
         )} - 4px)`,
     };
 
+    const containerStyle: React.CSSProperties = {
+        width: isMobile ? "95vw" : "90vh",
+        height: isMobile ? "95vw" : "90vh",
+    };
+
     const portraitStyle: React.CSSProperties = {
         width: colVRow
             ? `${isMobile ? "95vw" : "55vw"}`
             : `calc(${isMobile ? "95vw" : "55vw"} - (${rows - columns} * ${
                   isMobile ? "95vw" : "55vw"
               } / ${rows}))`,
-        maxWidth: isMobile ? "95vw" : "90vh",
-        maxHeight: isMobile ? "95vw" : "90vh",
     };
 
     const pixels: Array<JSX.Element> = [];
@@ -214,32 +217,28 @@ function Visualiser(): JSX.Element {
         );
     }
 
-    const selectStyle: React.CSSProperties = {
-        height: `${(isMobile ? 50 : 20).toString()}%`,
-        width: `${(isMobile ? 50 : 100).toString()}%`,
-    };
-
     return (
         <div className="flex items-center justify-evenly m-auto flex-col sm:flex-row h-screen-90 w-screen-95">
-            <div className="flex flex-wrap relative justify-center content-center h-[calc(90vh-95vw)/2] w-full sm:h-full sm:w-screen-20 sm:float-left">
+            <div className="flex flex-wrap relative justify-center content-center h-[calc(100vh-7.5vh-95vw)] w-full sm:h-full sm:w-screen-20 sm:float-left">
                 <MByNDropdown m={rows} n={columns} mByN={mByN} />
-                <select
-                    className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full"
-                    ref={compSelectRef}
-                    value={algo}
-                    onChange={algoChange}
-                    style={selectStyle}
-                >
-                    <option value="k-means">K-Means</option>
-                    <option value="discrete-cosine-transform">
-                        Discrete Cosine Transform
-                    </option>
-                    <option value="fractal-compression">
-                        Fractal Compression
-                    </option>
-                </select>
+                <div className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5">
+                    <select
+                        className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full h-[90%]"
+                        ref={compSelectRef}
+                        value={algo}
+                        onChange={algoChange}
+                    >
+                        <option value="k-means">K-Means</option>
+                        <option value="discrete-cosine-transform">
+                            Discrete Cosine Transform
+                        </option>
+                        <option value="fractal-compression">
+                            Fractal Compression
+                        </option>
+                    </select>
+                </div>
                 {algo === "k-means" ? (
-                    <div className="flex items-center w-1/2 h-1/2 sm:w-full sm:h-1/5">
+                    <div className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5">
                         <div className="text-white font-mono text-3xl w-fit mr-1 ml-1 sm:ml-0">
                             K:
                         </div>
@@ -259,21 +258,26 @@ function Visualiser(): JSX.Element {
                 />
             </div>
             <div
-                className="flex flex-wrap justify-center"
-                ref={targetRef}
-                style={portraitStyle}
+                className="flex flex-col items-center justify-center"
+                style={containerStyle}
             >
-                {pixels}
-                {displayColPick ? (
-                    <RgbColorPicker
-                        onChange={onColChangeMethod}
-                        onMouseDown={onColInitMethod}
-                        onTouchStart={onColInitMethod}
-                        onMouseUp={onColEndMethod}
-                        onTouchEnd={onColEndMethod}
-                        color={colAvg}
-                    />
-                ) : null}
+                <div
+                    className="flex flex-wrap justify-center"
+                    ref={targetRef}
+                    style={portraitStyle}
+                >
+                    {pixels}
+                    {displayColPick ? (
+                        <RgbColorPicker
+                            onChange={onColChangeMethod}
+                            onMouseDown={onColInitMethod}
+                            onTouchStart={onColInitMethod}
+                            onMouseUp={onColEndMethod}
+                            onTouchEnd={onColEndMethod}
+                            color={colAvg}
+                        />
+                    ) : null}
+                </div>
             </div>
         </div>
     );
