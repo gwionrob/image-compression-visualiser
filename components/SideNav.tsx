@@ -20,10 +20,12 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
 
     return (
         <div
+            id="sideNavContainer"
             className="flex flex-col h-full fixed z-10 top-0 left-0 bg-zinc-900 transition-all duration-500 ease-out overflow-hidden"
             style={{ width: navWidth }}
         >
             <button
+                id="closeNav"
                 className="absolute top-[4px] left-[22px] mr-auto bg-transparent text-[red] border-none text-3xl font-mono cursor-pointer"
                 type="button"
                 onClick={closeNav}
@@ -32,6 +34,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
             </button>
             <Link href="/">
                 <a
+                    id="homeLink"
                     className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
                     onClick={closeNav}
                     style={
@@ -43,6 +46,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
             </Link>
             <Link href="/about">
                 <a
+                    id="aboutLink"
                     className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
                     onClick={closeNav}
                     style={
@@ -55,6 +59,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 </a>
             </Link>
             <button
+                id="visualiserToggle"
                 className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline text-left"
                 type="button"
                 onClick={toggleDd}
@@ -67,11 +72,13 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 Visualiser
             </button>
             <div
+                id="visualiserLinksContainer"
                 className="flex flex-col transition-all duration-200 ease-in ml-[50px] overflow-hidden"
                 style={{ height: ddHeight }}
             >
                 <Link href="/visualiser/k-means">
                     <a
+                        id="kMeansLink"
                         className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
                         onClick={closeNav}
                         style={
@@ -85,6 +92,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 </Link>
                 <Link href="/visualiser/discrete-cosine-transform">
                     <a
+                        id="dctLink"
                         className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
                         onClick={closeNav}
                         style={
@@ -98,6 +106,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 </Link>
                 <Link href="/visualiser/fractal-compression">
                     <a
+                        id="fracCompLink"
                         className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
                         onClick={closeNav}
                         style={

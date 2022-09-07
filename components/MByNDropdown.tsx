@@ -90,28 +90,31 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
 
     return (
         <div
+            id="mByNContainer"
             className="flex items-center justify-between"
             style={containerStyle}
         >
             <select
+                id="m"
                 className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full touch-none"
                 style={ddStyle}
                 ref={mSelectRef}
                 value={m}
-                id="m"
                 onChange={changeHandler}
                 onWheel={scrollHandler}
                 onTouchMove={touchMoveHandler}
             >
                 {options}
             </select>
-            <div className="text-white font-mono text-3xl">x</div>
+            <div id="x" className="text-white font-mono text-3xl">
+                x
+            </div>
             <select
+                id="n"
                 className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full touch-none"
                 style={ddStyle}
                 ref={nSelectRef}
                 value={n}
-                id="n"
                 onChange={changeHandler}
                 onWheel={scrollHandler}
                 onTouchMove={touchMoveHandler}

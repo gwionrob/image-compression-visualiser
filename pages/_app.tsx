@@ -14,7 +14,7 @@ const toTitle = (title: string | undefined) => {
     newTitle = newTitle.replaceAll("-", " ");
     return newTitle.replace(
         /\w\S*/g,
-        (t) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()
+        (t) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(),
     );
 };
 
@@ -37,10 +37,14 @@ function MyApp({ Component, pageProps }: AppProps) {
     };
 
     return (
-        <div className="flex justify-center">
-            <div className="w-full">
-                <div className="flex items-center w-full h-screen-7.5">
+        <div id="appContainer" className="flex justify-center">
+            <div id="app" className="w-full">
+                <div
+                    id="topBar"
+                    className="flex items-center w-full h-screen-7.5"
+                >
                     <button
+                        id="openSideNav"
                         className="h-2/3 w-[calc(2/3*5vh)] ml-3 bg-transparent border-none cursor-pointer"
                         type="button"
                         onClick={openSideNav}

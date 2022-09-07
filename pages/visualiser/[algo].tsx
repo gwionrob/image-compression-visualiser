@@ -77,20 +77,24 @@ function Visualiser(): JSX.Element {
     const mByN = (m: number, n: number) => {
         if ((m === rows && n === columns) || m * n === 1) return;
         document.querySelector(".ds-selector-area")?.remove();
-        if (m > rows) {
+        if (m != rows) {
             setColors(
-                colors.concat(
-                    Array(m * n - colors.length).fill({ r: 0, g: 0, b: 0 }),
-                ),
+                m < rows
+                    ? colors.slice(0, m * n)
+                    : colors.concat(
+                          Array(m * n - colors.length).fill({
+                              r: 0,
+                              g: 0,
+                              b: 0,
+                          }),
+                      ),
             );
         } else if (n > columns) {
             for (let i = 1; i <= m; i++) {
                 colors.splice(i * n - 1, 0, { r: 0, g: 0, b: 0 });
             }
             setColors(colors);
-        } else if (m < rows) {
-            setColors(colors.slice(0, m * n));
-        } else if (n < columns) {
+        } else {
             for (let i = 1; i <= m; i++) {
                 colors.splice(i * n, 1);
             }
@@ -188,7 +192,7 @@ function Visualiser(): JSX.Element {
     for (let i = 0; i < columns * rows; i++) {
         pixelRow.push(
             <Pixel
-                id={i.toString()}
+                id={`pixel${i.toString()}`}
                 key={i}
                 innerRef={(el: HTMLDivElement) => {
                     pixelRefs.current[i] = el;
@@ -199,7 +203,11 @@ function Visualiser(): JSX.Element {
         );
         if (pixelRow.length === columns) {
             pixels.push(
-                <div className="flex flex-row flex-wrap" key={rowId}>
+                <div
+                    id="pixelRow"
+                    className="flex flex-row flex-wrap"
+                    key={rowId}
+                >
                     {pixelRow}
                 </div>,
             );
@@ -218,11 +226,21 @@ function Visualiser(): JSX.Element {
     }
 
     return (
-        <div className="flex items-center justify-evenly m-auto flex-col sm:flex-row h-screen-90 w-screen-95">
-            <div className="flex flex-wrap relative justify-center content-center h-[calc(100vh-7.5vh-95vw)] w-full sm:h-full sm:w-screen-20 sm:float-left">
+        <div
+            id="visualiser"
+            className="flex items-center justify-evenly m-auto flex-col sm:flex-row h-screen-90 w-screen-95"
+        >
+            <div
+                id="visualiserMenu"
+                className="flex flex-wrap relative justify-center content-center h-[calc(100vh-7.5vh-95vw)] w-full sm:h-full sm:w-screen-20 sm:float-left"
+            >
                 <MByNDropdown m={rows} n={columns} mByN={mByN} />
-                <div className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5">
+                <div
+                    id="algoSelectContainer"
+                    className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5"
+                >
                     <select
+                        id="algoSelect"
                         className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full h-[90%]"
                         ref={compSelectRef}
                         value={algo}
@@ -238,11 +256,18 @@ function Visualiser(): JSX.Element {
                     </select>
                 </div>
                 {algo === "k-means" ? (
-                    <div className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5">
-                        <div className="text-white font-mono text-3xl w-fit mr-1 ml-1 sm:ml-0">
+                    <div
+                        id="kSelectContainer"
+                        className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5"
+                    >
+                        <div
+                            id="kSelectTitle"
+                            className="text-white font-mono text-3xl w-fit mr-1 ml-1 sm:ml-0"
+                        >
                             K:
                         </div>
                         <select
+                            id="kSelect"
                             className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full h-1/2"
                             value={k}
                             onChange={(e) => setK(parseInt(e.target.value, 10))}
@@ -258,10 +283,12 @@ function Visualiser(): JSX.Element {
                 />
             </div>
             <div
+                id="portraitContainer"
                 className="flex flex-col items-center justify-center"
                 style={containerStyle}
             >
                 <div
+                    id="portrait"
                     className="flex flex-wrap justify-center"
                     ref={targetRef}
                     style={portraitStyle}
