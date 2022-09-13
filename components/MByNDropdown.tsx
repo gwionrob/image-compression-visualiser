@@ -1,4 +1,4 @@
-import React, { TouchEventHandler, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import useIsMobile from "../hooks/useIsMobile";
 
 type Props = {
@@ -18,30 +18,6 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
         const newM = parseInt(mSelectRef.current.value, 10);
         const newN = parseInt(nSelectRef.current.value, 10);
         mByN(newM, newN);
-    };
-
-    const scrollHandler = (event: React.WheelEvent<HTMLSelectElement>) => {
-        if (mSelectRef.current === null || nSelectRef.current === null) return;
-        if (event.target instanceof HTMLSelectElement) {
-            const mOrN = event.target.id;
-            if (event.deltaY < 0) {
-                if (mOrN === "m") {
-                    const newM = parseInt(mSelectRef.current.value, 10) + 1;
-                    if (newM <= (isMobile ? 16 : 25) && newM !== 0)
-                        mByN(newM, n);
-                } else {
-                    const newN = parseInt(nSelectRef.current.value, 10) + 1;
-                    if (newN <= (isMobile ? 16 : 25) && newN !== 0)
-                        mByN(m, newN);
-                }
-            } else if (mOrN === "m") {
-                const newM = parseInt(mSelectRef.current.value, 10) - 1;
-                if (newM <= (isMobile ? 16 : 25) && newM !== 0) mByN(newM, n);
-            } else {
-                const newN = parseInt(nSelectRef.current.value, 10) - 1;
-                if (newN <= (isMobile ? 16 : 25) && newN !== 0) mByN(m, newN);
-            }
-        }
     };
 
     const touchMoveHandler = (event: React.TouchEvent<HTMLSelectElement>) => {
@@ -101,7 +77,6 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
                 ref={mSelectRef}
                 value={m}
                 onChange={changeHandler}
-                onWheel={scrollHandler}
                 onTouchMove={touchMoveHandler}
             >
                 {options}
@@ -116,7 +91,6 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
                 ref={nSelectRef}
                 value={n}
                 onChange={changeHandler}
-                onWheel={scrollHandler}
                 onTouchMove={touchMoveHandler}
             >
                 {options}

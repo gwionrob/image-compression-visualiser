@@ -56,7 +56,9 @@ function Visualiser(): JSX.Element {
                     );
                     e.items.forEach((el: HTMLDivElement) => {
                         el.classList.add("selected");
-                        selectedColors.push(colArray[parseInt(el.id, 10)]);
+                        selectedColors.push(
+                            colArray[parseInt(el.id.slice(5), 10)],
+                        );
                     });
                     setDisplayColPick(true);
                     setColAvg(kMeans(selectedColors, 1)[0]);
@@ -110,7 +112,7 @@ function Visualiser(): JSX.Element {
     const onColChangeMethod = (color: RGB) => {
         const colorsCopy = [...colors];
         selectedPixels.forEach((el) => {
-            colorsCopy[parseInt(el.id, 10)] = color;
+            colorsCopy[parseInt(el.id.slice(5), 10)] = color;
         });
         setColors(colorsCopy);
     };
