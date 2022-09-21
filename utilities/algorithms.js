@@ -90,7 +90,7 @@ function unBlocker(blocks, rows, columns) {
     return pixelValues;
 }
 
-function quantizator(pixelValues, rows, columns, quality) {
+function quantize(pixelValues, rows, columns, quality) {
     let quantizationMatrix = [
         16, 11, 10, 16, 24, 40, 51, 61, 12, 12, 14, 19, 26, 58, 60, 55, 14, 13,
         16, 24, 40, 57, 69, 56, 14, 17, 22, 29, 51, 87, 80, 62, 18, 22, 37, 56,
@@ -118,7 +118,7 @@ function pixelValDCT(pixelValues, rows, columns, quality) {
         block = DCT(block);
         return block;
     });
-    const quantization = quantizator(dct, rows, columns, quality);
+    const quantization = quantize(dct, rows, columns, quality);
     const iDct = quantization.map((block) => {
         block = IDCT(block);
         return block;
