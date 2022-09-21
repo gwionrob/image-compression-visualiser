@@ -1,4 +1,4 @@
-import { DCT, IDCT } from "DCT2";
+import { DCT, IDCT } from "dct2";
 import kmeans from "ml-kmeans";
 
 function kMeans(colors, k) {
