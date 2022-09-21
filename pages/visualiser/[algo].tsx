@@ -4,7 +4,7 @@ import { RgbColorPicker } from "react-colorful";
 import CompressButton from "../../components/CompressButton";
 import MByNDropdown from "../../components/MByNDropdown";
 import Pixel from "../../components/Pixel";
-import kMeans from "../../utilities/kmeans";
+import { kMeans, dct } from "../../utilities/algorithms";
 import useIsMobile from "../../hooks/useIsMobile";
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
@@ -13,12 +13,8 @@ type RGB = { r: number; g: number; b: number };
 
 function Visualiser(): JSX.Element {
     const [k, setK] = useState<number>(3);
-    const [columns, setNoOfColumns] = useState<number>(3);
-    const [rows, setNoOfRows] = useState<number>(3);
+    const [quality, setQuality] = useState<number>(50);
     const [isHue, setIsHue] = useState<boolean>(false);
-    const [colors, setColors] = useState<Array<RGB>>(
-        Array(rows * columns).fill({ r: 0, g: 0, b: 0 }),
-    );
     const [colAvg, setColAvg] = useState<RGB>({ r: 0, g: 0, b: 0 });
     const [displayColPick, setDisplayColPick] = useState<boolean>(false);
     const [selectedPixels, setSelectedPixels] = useState<Array<HTMLDivElement>>(
@@ -26,14 +22,19 @@ function Visualiser(): JSX.Element {
     );
     const compSelectRef = useRef<HTMLSelectElement>(null);
     const isMobile: boolean = useIsMobile();
-    const colVRow: boolean = columns >= rows;
-    const pixelDimensions: string = `calc((${
-        isMobile ? "95vw" : "55vw"
-    } / ${(colVRow ? columns : rows).toString()}) - 4px)`;
     const pixelRefs = useRef<Array<HTMLDivElement>>([]);
     const targetRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const { algo } = router.query;
+    const [columns, setNoOfColumns] = useState<number>(algo === "dct" ? 8 : 3);
+    const [rows, setNoOfRows] = useState<number>(algo === "dct" ? 8 : 3);
+    const [colors, setColors] = useState<Array<RGB>>(
+        Array(rows * columns).fill({ r: 0, g: 0, b: 0 }),
+    );
+    const colVRow: boolean = columns >= rows;
+    const pixelDimensions: string = `calc((${
+        isMobile ? "95vw" : "55vw"
+    } / ${(colVRow ? columns : rows).toString()}) - 4px)`;
 
     useEffect(() => {
         if (displayColPick || document.querySelector(".ds-selector-area")) {
@@ -74,6 +75,11 @@ function Visualiser(): JSX.Element {
 
     const algoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         router.push(`/visualiser/${event.target.value}`);
+        if (event.target.value === "dct") {
+            mByN(Math.round(rows / 8) * 8, Math.round(columns / 8) * 8);
+        } else {
+            mByN(rows, columns);
+        }
     };
 
     const mByN = (m: number, n: number) => {
@@ -144,6 +150,9 @@ function Visualiser(): JSX.Element {
         );
         if (algo === "k-means") {
             setColors(kMeans(colArray, k));
+        }
+        if (algo === "dct") {
+            setColors(dct(colArray, rows, columns, quality));
         }
     };
 
@@ -236,7 +245,7 @@ function Visualiser(): JSX.Element {
                 id="visualiserMenu"
                 className="flex flex-wrap relative justify-center content-center h-[calc(100vh-7.5vh-95vw)] w-full sm:h-full sm:w-screen-20 sm:float-left"
             >
-                <MByNDropdown m={rows} n={columns} mByN={mByN} />
+                <MByNDropdown m={rows} n={columns} mByN={mByN} algo={algo} />
                 <div
                     id="algoSelectContainer"
                     className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5"
@@ -249,9 +258,7 @@ function Visualiser(): JSX.Element {
                         onChange={algoChange}
                     >
                         <option value="k-means">K-Means</option>
-                        <option value="discrete-cosine-transform">
-                            Discrete Cosine Transform
-                        </option>
+                        <option value="dct">Discrete Cosine Transform</option>
                         <option value="fractal-compression">
                             Fractal Compression
                         </option>
@@ -276,6 +283,29 @@ function Visualiser(): JSX.Element {
                         >
                             {optionsK}
                         </select>
+                    </div>
+                ) : algo === "dct" ? (
+                    <div
+                        id="dctQualitySliderContainer"
+                        className="flex flex-col items-center justify-evenly w-1/2 h-1/3 sm:w-full sm:h-1/5"
+                    >
+                        <div
+                            id="kSelectTitle"
+                            className="text-white font-mono text-3xl w-fit mr-1 ml-1 sm:ml-0"
+                        >
+                            {`Quality: ${quality}`}
+                        </div>
+                        <input
+                            id="dctQualitySlider"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={quality}
+                            onChange={(e) =>
+                                setQuality(parseInt(e.target.value, 10))
+                            }
+                            className="w-[90%] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        ></input>
                     </div>
                 ) : null}
                 <CompressButton onClick={onCompress} title="Compress" />

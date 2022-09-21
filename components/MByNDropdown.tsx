@@ -5,9 +5,10 @@ type Props = {
     mByN: Function;
     m: number;
     n: number;
+    algo: string | string[] | undefined;
 };
 
-function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
+function MByNDropdown({ mByN, m, n, algo }: Props): JSX.Element {
     const mSelectRef = useRef<HTMLSelectElement>(null);
     const nSelectRef = useRef<HTMLSelectElement>(null);
     const [touchPos, setTouchPos] = useState<number>(0);
@@ -56,12 +57,22 @@ function MByNDropdown({ mByN, m, n }: Props): JSX.Element {
     };
 
     const options: Array<JSX.Element> = [];
-    for (let i = 1; i <= (isMobile ? 16 : 25); i++) {
-        options.push(
-            <option value={i} key={i}>
-                {i}
-            </option>,
-        );
+    if (algo === "dct") {
+        for (let i = 8; i <= (isMobile ? 24 : 32); i += 8) {
+            options.push(
+                <option value={i} key={i}>
+                    {i}
+                </option>,
+            );
+        }
+    } else {
+        for (let i = 1; i <= (isMobile ? 16 : 25); i++) {
+            options.push(
+                <option value={i} key={i}>
+                    {i}
+                </option>,
+            );
+        }
     }
 
     return (

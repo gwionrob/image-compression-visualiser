@@ -90,7 +90,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                         K-Means
                     </a>
                 </Link>
-                <Link href="/visualiser/discrete-cosine-transform">
+                <Link href="/visualiser/dct">
                     <a
                         id="dctLink"
                         className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
