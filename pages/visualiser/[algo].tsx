@@ -10,10 +10,12 @@ import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
 
 type RGB = { r: number; g: number; b: number };
+type DCT = { colors: RGB[]; compRatio: number };
 
 function Visualiser(): JSX.Element {
     const [k, setK] = useState<number>(3);
     const [quality, setQuality] = useState<number>(50);
+    const [compRatio, setCompRatio] = useState<string>("0");
     const [isHue, setIsHue] = useState<boolean>(false);
     const [colAvg, setColAvg] = useState<RGB>({ r: 0, g: 0, b: 0 });
     const [displayColPick, setDisplayColPick] = useState<boolean>(false);
@@ -82,6 +84,7 @@ function Visualiser(): JSX.Element {
         } else {
             mByN(rows, columns);
         }
+        setCompRatio("0");
     };
 
     const mByN = (m: number, n: number) => {
@@ -115,6 +118,7 @@ function Visualiser(): JSX.Element {
         }
         setNoOfRows(m);
         setNoOfColumns(n);
+        setCompRatio("0");
     };
 
     const onColChangeMethod = (color: RGB) => {
@@ -123,6 +127,7 @@ function Visualiser(): JSX.Element {
             colorsCopy[parseInt(el.id.slice(5), 10)] = color;
         });
         setColors(colorsCopy);
+        setCompRatio("0");
     };
 
     const onColInitMethod = (event: React.MouseEvent | React.TouchEvent) => {
@@ -154,7 +159,9 @@ function Visualiser(): JSX.Element {
             setColors(kMeans(colArray, k));
         }
         if (algo === "dct") {
-            setColors(dct(colArray, rows, columns, quality));
+            const dctVals: DCT = dct(colArray, rows, columns, quality);
+            setColors(dctVals.colors);
+            setCompRatio(dctVals.compRatio.toPrecision(3));
         }
     };
 
@@ -170,6 +177,7 @@ function Visualiser(): JSX.Element {
         }
         document.querySelector(".ds-selector-area")?.remove();
         setColors(randCol);
+        setCompRatio("0");
     };
 
     const pixelStyle: React.CSSProperties = {
@@ -300,7 +308,7 @@ function Visualiser(): JSX.Element {
                         <input
                             id="dctQualitySlider"
                             type="range"
-                            min="0"
+                            min="1"
                             max="100"
                             value={quality}
                             onChange={(e) =>
@@ -310,7 +318,14 @@ function Visualiser(): JSX.Element {
                         ></input>
                     </div>
                 ) : null}
-                <CompressButton onClick={onCompress} title="Compress" />
+                <CompressButton
+                    onClick={onCompress}
+                    title={
+                        compRatio !== "0"
+                            ? `Compression Ratio: ${compRatio.toString()}`
+                            : "Compress"
+                    }
+                />
                 <CompressButton
                     onClick={onRandomize}
                     title="Randomize Colors"

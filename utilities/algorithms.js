@@ -97,7 +97,9 @@ function quantize(pixelValues, rows, columns, quality) {
         68, 109, 103, 77, 24, 35, 55, 64, 81, 104, 113, 92, 49, 64, 78, 87, 103,
         121, 120, 101, 72, 92, 95, 98, 112, 100, 103, 99,
     ];
-    quantizationMatrix = quantizationMatrix.map((e) => e * (50 / quality));
+    quantizationMatrix = quantizationMatrix.map(
+        (e) => e * ((100 - quality) / 50),
+    );
     const quantization = pixelValues.map((block) => {
         block = block
             .flat()
@@ -119,11 +121,12 @@ function pixelValDCT(pixelValues, rows, columns, quality) {
         return block;
     });
     const quantization = quantize(dct, rows, columns, quality);
+    const zeros = quantization.flat(2).filter((a) => a === 0).length;
     const iDct = quantization.map((block) => {
         block = IDCT(block);
         return block;
     });
-    return unBlocker(iDct, rows, columns);
+    return [unBlocker(iDct, rows, columns), zeros];
 }
 
 function dct(colors, rows, columns, quality) {
@@ -141,8 +144,10 @@ function dct(colors, rows, columns, quality) {
     const CrDCT = pixelValDCT(CrPixelValues, rows, columns, quality);
 
     const newYCbCrColors = [];
-    for (let i = 0; i < yDCT.length; i++) {
-        newYCbCrColors.push(rgbConverter([yDCT[i], CbDCT[i], CrDCT[i]]));
+    for (let i = 0; i < yDCT[0].length; i++) {
+        newYCbCrColors.push(
+            rgbConverter([yDCT[0][i], CbDCT[0][i], CrDCT[0][i]]),
+        );
     }
 
     const newColors = [];
@@ -153,7 +158,9 @@ function dct(colors, rows, columns, quality) {
             b: col[2],
         }),
     );
-    return newColors;
+    const compRatio =
+        1 - (yDCT[1] + CbDCT[1] + CrDCT[1]) / (3 * rows * columns);
+    return { colors: newColors, compRatio: compRatio };
 }
 
 export { kMeans, dct };
