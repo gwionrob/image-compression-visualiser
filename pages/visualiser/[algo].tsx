@@ -76,7 +76,9 @@ function Visualiser(): JSX.Element {
     const algoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         router.push(`/visualiser/${event.target.value}`);
         if (event.target.value === "dct") {
-            mByN(Math.round(rows / 8) * 8, Math.round(columns / 8) * 8);
+            const m = Math.round(rows / 8) * 8;
+            const n = Math.round(columns / 8) * 8;
+            mByN(m === 0 ? 8 : m, n === 0 ? 8 : n);
         } else {
             mByN(rows, columns);
         }
