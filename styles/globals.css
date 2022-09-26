@@ -2,20 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 @layer base {
-  	body {
-  		@apply bg-zinc-800;
-  	}            
-  	.ds-selected,
-  	.selected {
-    	border-width: 3px !important;
-    	border-color: rgb(74, 77, 80) !important;
-    	z-index: 0 !important;
-  	}
-	.react-colorful {
-		position: absolute !important;
-		top: 5%;
-		left: 5%;
-		height: 90% !important;
-		width: 90% !important;
-	}
+    body {
+        @apply bg-zinc-800;
+    }
+    .ds-selected,
+    .selected {
+        border-width: 3px !important;
+        border-color: rgb(74, 77, 80) !important;
+        z-index: 0 !important;
+    }
+    .react-colorful {
+        position: absolute !important;
+        top: 5%;
+        left: 5%;
+        height: 90% !important;
+        width: 90% !important;
+    }
+    #imageViewToggle:checked ~ .dot {
+        transform: translateX(100%);
+        background-color: #0175ff;
+    }
 }

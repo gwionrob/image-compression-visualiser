@@ -41,7 +41,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             <div id="app" className="w-full">
                 <div
                     id="topBar"
-                    className="flex items-center w-full h-screen-7.5"
+                    className="flex items-center w-full h-screen-7.5 justify-between"
                 >
                     <button
                         id="openSideNav"
@@ -55,6 +55,25 @@ function MyApp({ Component, pageProps }: AppProps) {
                             alt="sidenav button icon"
                         />
                     </button>
+                    <div className="flex items-center justify-center w-fit mr-3">
+                        <label
+                            htmlFor="imageViewToggle"
+                            className="flex items-center cursor-pointer"
+                        >
+                            <div className="mr-3 text-white font-mono text-2xl">
+                                Image View:
+                            </div>
+                            <div className="relative">
+                                <input
+                                    id="imageViewToggle"
+                                    type="checkbox"
+                                    className="sr-only"
+                                />
+                                <div className="w-10 h-4 bg-gray-700 rounded-full shadow-inner"></div>
+                                <div className="dot absolute w-6 h-6 bg-gray-400 rounded-full shadow -left-1 -top-1 transition"></div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
                 <SideNav
                     navWidth={navWid}

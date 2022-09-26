@@ -19,6 +19,7 @@ function Visualiser(): JSX.Element {
     const [isHue, setIsHue] = useState<boolean>(false);
     const [colAvg, setColAvg] = useState<RGB>({ r: 0, g: 0, b: 0 });
     const [displayColPick, setDisplayColPick] = useState<boolean>(false);
+    const [pixelMode, setPixelMode] = useState<boolean>(true);
     const [selectedPixels, setSelectedPixels] = useState<Array<HTMLDivElement>>(
         [],
     );
@@ -331,30 +332,34 @@ function Visualiser(): JSX.Element {
                     title="Randomize Colors"
                 />
             </div>
-            <div
-                id="portraitContainer"
-                className="flex flex-col items-center justify-center"
-                style={containerStyle}
-            >
+            {pixelMode ? (
                 <div
-                    id="portrait"
-                    className="flex flex-wrap justify-center"
-                    ref={targetRef}
-                    style={portraitStyle}
+                    id="portraitContainer"
+                    className="flex flex-col items-center justify-center"
+                    style={containerStyle}
                 >
-                    {pixels}
-                    {displayColPick ? (
-                        <RgbColorPicker
-                            onChange={onColChangeMethod}
-                            onMouseDown={onColInitMethod}
-                            onTouchStart={onColInitMethod}
-                            onMouseUp={onColEndMethod}
-                            onTouchEnd={onColEndMethod}
-                            color={colAvg}
-                        />
-                    ) : null}
+                    <div
+                        id="portrait"
+                        className="flex flex-wrap justify-center"
+                        ref={targetRef}
+                        style={portraitStyle}
+                    >
+                        {pixels}
+                        {displayColPick ? (
+                            <RgbColorPicker
+                                onChange={onColChangeMethod}
+                                onMouseDown={onColInitMethod}
+                                onTouchStart={onColInitMethod}
+                                onMouseUp={onColEndMethod}
+                                onTouchEnd={onColEndMethod}
+                                color={colAvg}
+                            />
+                        ) : null}
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <div></div>
+            )}
         </div>
     );
 }
