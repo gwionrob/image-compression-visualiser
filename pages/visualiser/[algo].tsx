@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, DragEvent } from "react";
 import DragSelect from "dragselect";
 import { RgbColorPicker } from "react-colorful";
 import CompressButton from "../../components/CompressButton";
@@ -11,21 +11,22 @@ import { GetServerSideProps } from "next";
 
 type RGB = { r: number; g: number; b: number };
 type DCT = { colors: RGB[]; compRatio: number };
+type Props = { imageView: boolean };
 
-function Visualiser(): JSX.Element {
+function Visualiser({ imageView }: Props): JSX.Element {
     const [k, setK] = useState<number>(3);
     const [quality, setQuality] = useState<number>(50);
     const [compRatio, setCompRatio] = useState<string>("0");
     const [isHue, setIsHue] = useState<boolean>(false);
     const [colAvg, setColAvg] = useState<RGB>({ r: 0, g: 0, b: 0 });
     const [displayColPick, setDisplayColPick] = useState<boolean>(false);
-    const [pixelMode, setPixelMode] = useState<boolean>(true);
     const [selectedPixels, setSelectedPixels] = useState<Array<HTMLDivElement>>(
         [],
     );
     const compSelectRef = useRef<HTMLSelectElement>(null);
     const isMobile: boolean = useIsMobile();
     const pixelRefs = useRef<Array<HTMLDivElement>>([]);
+    const imageRef = useRef<HTMLCanvasElement>(null);
     const targetRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const { algo } = router.query;
@@ -34,10 +35,35 @@ function Visualiser(): JSX.Element {
     const [colors, setColors] = useState<Array<RGB>>(
         Array(rows * columns).fill({ r: 0, g: 0, b: 0 }),
     );
+    const [image, setImage] = useState<ImageData>();
     const colVRow: boolean = columns >= rows;
     const pixelDimensions: string = `calc((${
         isMobile ? "95vw" : "55vw"
     } / ${(colVRow ? columns : rows).toString()}) - 4px)`;
+
+    const readImage = (file: File) => {
+        const reader = new FileReader();
+        reader.addEventListener("load", (event) => {
+            let img = new Image();
+            img.addEventListener("load", () => {
+                if (imageRef.current === null) return;
+                imageRef.current.width = img.width;
+                imageRef.current.height = img.height;
+                imageRef.current.getContext("2d")?.drawImage(img, 0, 0);
+                const image = imageRef.current
+                    .getContext("2d")
+                    ?.getImageData(0, 0, img.width, img.height);
+                setImage(image);
+            });
+            if (
+                event.target === null ||
+                typeof event.target.result !== "string"
+            )
+                return;
+            img.src = event.target.result;
+        });
+        reader.readAsDataURL(file);
+    };
 
     useEffect(() => {
         if (displayColPick || document.querySelector(".ds-selector-area")) {
@@ -153,16 +179,41 @@ function Visualiser(): JSX.Element {
     };
 
     const onCompress = () => {
-        const colArray: Array<Array<number>> = colors.map((col) =>
-            Object.values(col),
-        );
-        if (algo === "k-means") {
-            setColors(kMeans(colArray, k));
-        }
-        if (algo === "dct") {
-            const dctVals: DCT = dct(colArray, rows, columns, quality);
-            setColors(dctVals.colors);
-            setCompRatio(dctVals.compRatio.toPrecision(3));
+        if (imageView) {
+            const colArray: Array<Array<number>> = [];
+            if (image === undefined) return;
+            for (let i = 0; i < image.data.length; i += 4) {
+                const newCol: Array<number> = [];
+                newCol.push(image.data[i]);
+                newCol.push(image.data[i + 1]);
+                newCol.push(image.data[i + 2]);
+                colArray.push(newCol);
+            }
+            if (algo === "k-means") {
+                const imageArray = kMeans(colArray, k, true);
+                let imageData: Uint8ClampedArray =
+                    Uint8ClampedArray.from(imageArray);
+                image.data.set(imageData);
+                setImage(image);
+                imageRef.current?.getContext("2d")?.putImageData(image, 0, 0);
+            }
+            if (algo === "dct") {
+                const dctVals: DCT = dct(colArray, rows, columns, quality);
+                setColors(dctVals.colors);
+                setCompRatio(dctVals.compRatio.toPrecision(3));
+            }
+        } else {
+            const colArray: Array<Array<number>> = colors.map((col) =>
+                Object.values(col),
+            );
+            if (algo === "k-means") {
+                setColors(kMeans(colArray, k, false));
+            }
+            if (algo === "dct") {
+                const dctVals: DCT = dct(colArray, rows, columns, quality);
+                setColors(dctVals.colors);
+                setCompRatio(dctVals.compRatio.toPrecision(3));
+            }
         }
     };
 
@@ -179,6 +230,23 @@ function Visualiser(): JSX.Element {
         document.querySelector(".ds-selector-area")?.remove();
         setColors(randCol);
         setCompRatio("0");
+    };
+
+    const onImageDrag = (event: DragEvent) => {
+        event.stopPropagation();
+        event.preventDefault();
+        // Style the drag-and-drop as a "copy file" operation.
+        if (event.dataTransfer === null) return;
+        event.dataTransfer.dropEffect = "copy";
+    };
+
+    const onImageDrop = (event: DragEvent) => {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.dataTransfer === null) return;
+        const fileList = event.dataTransfer.files;
+
+        readImage(fileList[0]);
     };
 
     const pixelStyle: React.CSSProperties = {
@@ -205,6 +273,11 @@ function Visualiser(): JSX.Element {
             : `calc(${isMobile ? "95vw" : "55vw"} - (${rows - columns} * ${
                   isMobile ? "95vw" : "55vw"
               } / ${rows}))`,
+    };
+
+    const imageStyle: React.CSSProperties = {
+        width: `${isMobile ? "95vw" : "55vw"}`,
+        height: `${isMobile ? "95vw" : "55vw"}`,
     };
 
     const pixels: Array<JSX.Element> = [];
@@ -256,7 +329,14 @@ function Visualiser(): JSX.Element {
                 id="visualiserMenu"
                 className="flex flex-wrap relative justify-center content-center h-[calc(100vh-7.5vh-95vw)] w-full sm:h-full sm:w-screen-20 sm:float-left"
             >
-                <MByNDropdown m={rows} n={columns} mByN={mByN} algo={algo} />
+                {imageView ? null : (
+                    <MByNDropdown
+                        m={rows}
+                        n={columns}
+                        mByN={mByN}
+                        algo={algo}
+                    />
+                )}
                 <div
                     id="algoSelectContainer"
                     className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5"
@@ -327,12 +407,29 @@ function Visualiser(): JSX.Element {
                             : "Compress"
                     }
                 />
-                <CompressButton
-                    onClick={onRandomize}
-                    title="Randomize Colors"
-                />
+                {imageView ? null : (
+                    <CompressButton
+                        onClick={onRandomize}
+                        title="Randomize Colors"
+                    />
+                )}
             </div>
-            {pixelMode ? (
+            {imageView ? (
+                <div
+                    id="imageContainer"
+                    className="flex flex-col items-center justify-center"
+                    style={containerStyle}
+                >
+                    <canvas
+                        id="image"
+                        className="flex flex-wrap h-[80%] justify-center border-2 border-teal-50 rounded-xl overflow-hidden bg-cover"
+                        style={imageStyle}
+                        ref={imageRef}
+                        onDragOver={onImageDrag}
+                        onDrop={onImageDrop}
+                    ></canvas>
+                </div>
+            ) : (
                 <div
                     id="portraitContainer"
                     className="flex flex-col items-center justify-center"
@@ -357,8 +454,6 @@ function Visualiser(): JSX.Element {
                         ) : null}
                     </div>
                 </div>
-            ) : (
-                <div></div>
             )}
         </div>
     );

@@ -1,7 +1,7 @@
 import { DCT, IDCT } from "dct2";
 import kmeans from "ml-kmeans";
 
-function kMeans(colors, k) {
+function kMeans(colors, k, imageView) {
     const kmeansGenerator = kmeans(colors, k, {
         initialization: "kmeans++",
         withIterations: true,
@@ -33,11 +33,18 @@ function kMeans(colors, k) {
     for (let i = 0; i < finalClusters.length; i++) {
         let newCol = finalCentroids[finalClusters[i]].centroid;
         newCol = newCol.map((p) => Math.round(p));
-        newColors.push({
-            r: newCol[0],
-            g: newCol[1],
-            b: newCol[2],
-        });
+        if (imageView) {
+            newColors.push(newCol[0]);
+            newColors.push(newCol[1]);
+            newColors.push(newCol[2]);
+            newColors.push(255);
+        } else {
+            newColors.push({
+                r: newCol[0],
+                g: newCol[1],
+                b: newCol[2],
+            });
+        }
     }
 
     return newColors;

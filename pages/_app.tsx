@@ -20,6 +20,7 @@ const toTitle = (title: string | undefined) => {
 
 function MyApp({ Component, pageProps }: AppProps) {
     const [navWid, setNavWid] = useState<string>("0%");
+    const [imageView, setImageView] = useState<boolean>(false);
     const isMobile: boolean = useIsMobile();
     const router = useRouter();
     const algo = router.query.algo as string;
@@ -68,6 +69,9 @@ function MyApp({ Component, pageProps }: AppProps) {
                                     id="imageViewToggle"
                                     type="checkbox"
                                     className="sr-only"
+                                    onChange={(e) => {
+                                        setImageView(e.target.checked);
+                                    }}
                                 />
                                 <div className="w-10 h-4 bg-gray-700 rounded-full shadow-inner"></div>
                                 <div className="dot absolute w-6 h-6 bg-gray-400 rounded-full shadow -left-1 -top-1 transition"></div>
@@ -80,7 +84,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     closeNav={closeSideNav}
                     currentTab={toTitle(algo)}
                 />
-                <Component {...pageProps} />
+                <Component {...pageProps} imageView={imageView} />
             </div>
         </div>
     );
