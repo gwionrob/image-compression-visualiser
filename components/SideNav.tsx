@@ -21,12 +21,12 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
     return (
         <div
             id="sideNavContainer"
-            className="flex flex-col h-full fixed z-10 top-0 left-0 bg-zinc-900 transition-all duration-500 ease-out overflow-hidden"
+            className="fixed top-0 left-0 z-10 flex h-full flex-col overflow-hidden bg-zinc-900 transition-all duration-500 ease-out"
             style={{ width: navWidth }}
         >
             <button
                 id="closeNav"
-                className="absolute top-[4px] left-[22px] mr-auto bg-transparent text-[red] border-none text-3xl font-mono cursor-pointer"
+                className="absolute top-[4px] left-[22px] mr-auto cursor-pointer border-none bg-transparent font-mono text-3xl text-[red]"
                 type="button"
                 onClick={closeNav}
             >
@@ -35,7 +35,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
             <Link href="/">
                 <a
                     id="homeLink"
-                    className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
+                    className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
                     onClick={closeNav}
                     style={
                         router.pathname === "/" ? { color: "red" } : undefined
@@ -47,7 +47,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
             <Link href="/about">
                 <a
                     id="aboutLink"
-                    className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
+                    className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
                     onClick={closeNav}
                     style={
                         router.pathname === "/about"
@@ -60,7 +60,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
             </Link>
             <button
                 id="visualiserToggle"
-                className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline text-left"
+                className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap text-left font-mono text-2xl text-red-700 no-underline hover:text-[red]"
                 type="button"
                 onClick={toggleDd}
                 style={
@@ -73,13 +73,13 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
             </button>
             <div
                 id="visualiserLinksContainer"
-                className="flex flex-col transition-all duration-200 ease-in ml-[50px] overflow-hidden"
+                className="ml-[50px] flex flex-col overflow-hidden transition-all duration-200 ease-in"
                 style={{ height: ddHeight }}
             >
                 <Link href="/visualiser/k-means">
                     <a
                         id="kMeansLink"
-                        className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
+                        className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
                         onClick={closeNav}
                         style={
                             currentTab.slice(0, 3) === "K M"
@@ -93,7 +93,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 <Link href="/visualiser/dct">
                     <a
                         id="dctLink"
-                        className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
+                        className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
                         onClick={closeNav}
                         style={
                             currentTab.slice(0, 3) === "Dis"
@@ -107,7 +107,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 <Link href="/visualiser/fractal-compression">
                     <a
                         id="fracCompLink"
-                        className="text-red-700 hover:text-[red] font-mono text-2xl mt-[50px] ml-[30px] whitespace-nowrap cursor-pointer no-underline"
+                        className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
                         onClick={closeNav}
                         style={
                             currentTab.slice(0, 3) === "Fra"

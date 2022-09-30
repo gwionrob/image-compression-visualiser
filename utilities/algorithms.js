@@ -1,46 +1,64 @@
 import { DCT, IDCT } from "dct2";
 import kmeans from "ml-kmeans";
 
-function kMeans(colors, k) {
-    const kmeansGenerator = kmeans(colors, k, {
+function clustersMatchPerc(prevClusters, clusters) {
+    if (prevClusters === []) return 0;
+    const matches = clusters.filter((cluster, i) => {
+        return cluster === prevClusters[i];
+    }).length;
+    return (matches / clusters.length) * 100;
+}
+
+function kMeans(colors, k, imageView) {
+    const kmeansVals = kmeans(colors, k, {
         initialization: "kmeans++",
-        withIterations: true,
     });
 
-    const centroidIterations = [];
-
-    const clusterIterations = [];
-
-    let algoConverged = false;
-
-    while (!algoConverged) {
-        const nextIter = kmeansGenerator.next();
-        algoConverged = nextIter.value.converged;
-        if (
-            !algoConverged ||
-            (algoConverged && centroidIterations.length === 0)
-        ) {
-            centroidIterations.push([...nextIter.value.centroids]);
-            clusterIterations.push([...nextIter.value.clusters]);
-        }
-    }
-
-    const finalClusters = clusterIterations[clusterIterations.length - 1];
-    const finalCentroids = centroidIterations[centroidIterations.length - 1];
+    const finalClusters = kmeansVals.clusters;
+    const finalCentroids = kmeansVals.centroids;
 
     const newColors = [];
 
     for (let i = 0; i < finalClusters.length; i++) {
         let newCol = finalCentroids[finalClusters[i]].centroid;
         newCol = newCol.map((p) => Math.round(p));
-        newColors.push({
-            r: newCol[0],
-            g: newCol[1],
-            b: newCol[2],
-        });
+        if (imageView) {
+            newColors.push(newCol[0]);
+            newColors.push(newCol[1]);
+            newColors.push(newCol[2]);
+            newColors.push(255);
+        } else {
+            newColors.push({
+                r: newCol[0],
+                g: newCol[1],
+                b: newCol[2],
+            });
+        }
     }
 
     return newColors;
+}
+
+function kMeansGenerator(colors, k) {
+    return (kMeansGenerator = kmeans(colors, k, {
+        initialization: "kmeans++",
+        withIterations: true,
+        maxIterations: 500,
+    }));
+}
+
+function kMeansStep(kMeansGen, currentIter) {
+    const algoConverged = currentIter.value.converged;
+    const prevClusters = [...currentIter.value.clusters];
+
+    if (!algoConverged) {
+        const nextIter = kMeansGen.next();
+        const perc = clustersMatchPerc(prevClusters, nextIter.value.clusters);
+        const scaledPerc = Math.max((perc - 99) * 100, 0);
+        return { currentIter: nextIter, perc: scaledPerc };
+    } else {
+        return { currentIter: currentIter, perc: 100 };
+    }
 }
 
 function yCbCrConverter(color) {
@@ -163,4 +181,4 @@ function dct(colors, rows, columns, quality) {
     return { colors: newColors, compRatio: compRatio };
 }
 
-export { kMeans, dct };
+export { kMeans, kMeansGenerator, kMeansStep, dct };

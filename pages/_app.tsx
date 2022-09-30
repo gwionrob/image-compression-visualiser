@@ -20,6 +20,7 @@ const toTitle = (title: string | undefined) => {
 
 function MyApp({ Component, pageProps }: AppProps) {
     const [navWid, setNavWid] = useState<string>("0%");
+    const [imageView, setImageView] = useState<boolean>(false);
     const isMobile: boolean = useIsMobile();
     const router = useRouter();
     const algo = router.query.algo as string;
@@ -41,11 +42,11 @@ function MyApp({ Component, pageProps }: AppProps) {
             <div id="app" className="w-full">
                 <div
                     id="topBar"
-                    className="flex items-center w-full h-screen-7.5"
+                    className="flex h-screen-7.5 w-full items-center justify-between"
                 >
                     <button
                         id="openSideNav"
-                        className="h-2/3 w-[calc(2/3*5vh)] ml-3 bg-transparent border-none cursor-pointer"
+                        className="ml-3 h-2/3 w-[calc(2/3*5vh)] cursor-pointer border-none bg-transparent"
                         type="button"
                         onClick={openSideNav}
                     >
@@ -55,13 +56,35 @@ function MyApp({ Component, pageProps }: AppProps) {
                             alt="sidenav button icon"
                         />
                     </button>
+                    <div className="mr-3 flex w-fit items-center justify-center">
+                        <label
+                            htmlFor="imageViewToggle"
+                            className="flex cursor-pointer items-center"
+                        >
+                            <div className="mr-3 font-mono text-2xl text-white">
+                                Image View:
+                            </div>
+                            <div className="relative">
+                                <input
+                                    id="imageViewToggle"
+                                    type="checkbox"
+                                    className="sr-only"
+                                    onChange={(e) => {
+                                        setImageView(e.target.checked);
+                                    }}
+                                />
+                                <div className="h-4 w-10 rounded-full bg-gray-700 shadow-inner"></div>
+                                <div className="dot absolute -left-1 -top-1 h-6 w-6 rounded-full bg-gray-400 shadow transition"></div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
                 <SideNav
                     navWidth={navWid}
                     closeNav={closeSideNav}
                     currentTab={toTitle(algo)}
                 />
-                <Component {...pageProps} />
+                <Component {...pageProps} imageView={imageView} />
             </div>
         </div>
     );

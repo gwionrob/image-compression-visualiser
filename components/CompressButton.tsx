@@ -13,11 +13,11 @@ function CompressButton({ onClick, title }: Props): JSX.Element {
     return (
         <div
             id="buttonContainer"
-            className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5"
+            className="flex h-1/3 w-1/2 items-center sm:h-1/5 sm:w-full"
         >
             <button
                 id="compressButton"
-                className="text-white bg-zinc-800 cursor-pointer border-2 border-teal-50 rounded-xl font-mono text-3xl w-full h-[90%]"
+                className="h-[90%] w-full cursor-pointer rounded-xl border-2 border-teal-50 bg-zinc-800 font-mono text-3xl text-white"
                 type="button"
                 onClick={onClickHandler}
             >
