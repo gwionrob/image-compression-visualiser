@@ -1,5 +1,0 @@
-import { kMeans, dct } from "./utilities/algorithms";
-
-this.onmessage = (event) => {
-    postMessage(event.data);
-};
