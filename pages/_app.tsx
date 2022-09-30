@@ -42,11 +42,11 @@ function MyApp({ Component, pageProps }: AppProps) {
             <div id="app" className="w-full">
                 <div
                     id="topBar"
-                    className="flex items-center w-full h-screen-7.5 justify-between"
+                    className="flex h-screen-7.5 w-full items-center justify-between"
                 >
                     <button
                         id="openSideNav"
-                        className="h-2/3 w-[calc(2/3*5vh)] ml-3 bg-transparent border-none cursor-pointer"
+                        className="ml-3 h-2/3 w-[calc(2/3*5vh)] cursor-pointer border-none bg-transparent"
                         type="button"
                         onClick={openSideNav}
                     >
@@ -56,12 +56,12 @@ function MyApp({ Component, pageProps }: AppProps) {
                             alt="sidenav button icon"
                         />
                     </button>
-                    <div className="flex items-center justify-center w-fit mr-3">
+                    <div className="mr-3 flex w-fit items-center justify-center">
                         <label
                             htmlFor="imageViewToggle"
-                            className="flex items-center cursor-pointer"
+                            className="flex cursor-pointer items-center"
                         >
-                            <div className="mr-3 text-white font-mono text-2xl">
+                            <div className="mr-3 font-mono text-2xl text-white">
                                 Image View:
                             </div>
                             <div className="relative">
@@ -73,8 +73,8 @@ function MyApp({ Component, pageProps }: AppProps) {
                                         setImageView(e.target.checked);
                                     }}
                                 />
-                                <div className="w-10 h-4 bg-gray-700 rounded-full shadow-inner"></div>
-                                <div className="dot absolute w-6 h-6 bg-gray-400 rounded-full shadow -left-1 -top-1 transition"></div>
+                                <div className="h-4 w-10 rounded-full bg-gray-700 shadow-inner"></div>
+                                <div className="dot absolute -left-1 -top-1 h-6 w-6 rounded-full bg-gray-400 shadow transition"></div>
                             </div>
                         </label>
                     </div>

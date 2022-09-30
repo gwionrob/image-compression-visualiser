@@ -83,7 +83,7 @@ function MByNDropdown({ mByN, m, n, algo }: Props): JSX.Element {
         >
             <select
                 id="m"
-                className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full touch-none"
+                className="w-full cursor-pointer touch-none rounded-xl border-2 border-teal-50 bg-zinc-800 text-center font-mono text-3xl text-white"
                 style={ddStyle}
                 ref={mSelectRef}
                 value={m}
@@ -92,12 +92,12 @@ function MByNDropdown({ mByN, m, n, algo }: Props): JSX.Element {
             >
                 {options}
             </select>
-            <div id="x" className="text-white font-mono text-3xl">
+            <div id="x" className="font-mono text-3xl text-white">
                 x
             </div>
             <select
                 id="n"
-                className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full touch-none"
+                className="w-full cursor-pointer touch-none rounded-xl border-2 border-teal-50 bg-zinc-800 text-center font-mono text-3xl text-white"
                 style={ddStyle}
                 ref={nSelectRef}
                 value={n}

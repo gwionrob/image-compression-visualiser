@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, DragEvent } from "react";
+import React, {
+    useState,
+    useRef,
+    useEffect,
+    DragEvent,
+    ChangeEvent,
+} from "react";
 import DragSelect from "dragselect";
 import { RgbColorPicker } from "react-colorful";
 import CompressButton from "../../components/CompressButton";
@@ -12,6 +18,19 @@ import { GetServerSideProps } from "next";
 type RGB = { r: number; g: number; b: number };
 type DCT = { colors: RGB[]; compRatio: number };
 type Props = { imageView: boolean };
+type workerResponse = {
+    algo: string;
+    imageData: Array<number>;
+    pixelData: Array<RGB>;
+    imageView: boolean;
+    perc: number;
+};
+
+function copyImageData(ctx: CanvasRenderingContext2D, src: ImageData) {
+    let imgData = ctx.createImageData(src.width, src.height);
+    imgData.data.set(src.data);
+    return imgData;
+}
 
 function Visualiser({ imageView }: Props): JSX.Element {
     const [k, setK] = useState<number>(3);
@@ -19,7 +38,9 @@ function Visualiser({ imageView }: Props): JSX.Element {
     const [compRatio, setCompRatio] = useState<string>("0");
     const [isHue, setIsHue] = useState<boolean>(false);
     const [colAvg, setColAvg] = useState<RGB>({ r: 0, g: 0, b: 0 });
+    const [compressed, setCompressed] = useState<boolean>(false);
     const [displayColPick, setDisplayColPick] = useState<boolean>(false);
+    const [showOriginal, setShowOriginal] = useState<boolean>(true);
     const [selectedPixels, setSelectedPixels] = useState<Array<HTMLDivElement>>(
         [],
     );
@@ -28,6 +49,9 @@ function Visualiser({ imageView }: Props): JSX.Element {
     const pixelRefs = useRef<Array<HTMLDivElement>>([]);
     const imageRef = useRef<HTMLCanvasElement>(null);
     const targetRef = useRef<HTMLDivElement>(null);
+    const inputImageButtonRef = useRef<HTMLButtonElement>(null);
+    const inputImageRef = useRef<HTMLInputElement>(null);
+    const workerRef = useRef<Worker>();
     const router = useRouter();
     const { algo } = router.query;
     const [columns, setNoOfColumns] = useState<number>(algo === "dct" ? 8 : 3);
@@ -35,13 +59,19 @@ function Visualiser({ imageView }: Props): JSX.Element {
     const [colors, setColors] = useState<Array<RGB>>(
         Array(rows * columns).fill({ r: 0, g: 0, b: 0 }),
     );
+    const [compressedImage, setCompressedImage] = useState<ImageData>();
     const [image, setImage] = useState<ImageData>();
+    const [originalImage, setOriginalImage] = useState<ImageData>();
     const colVRow: boolean = columns >= rows;
     const pixelDimensions: string = `calc((${
         isMobile ? "95vw" : "55vw"
     } / ${(colVRow ? columns : rows).toString()}) - 4px)`;
 
     const readImage = (file: File) => {
+        if (file === undefined) return;
+        if (file.type.slice(0, 6) !== "image/") {
+            alert("Please input an image.");
+        }
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
             let img = new Image();
@@ -49,11 +79,14 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 if (imageRef.current === null) return;
                 imageRef.current.width = img.width;
                 imageRef.current.height = img.height;
-                imageRef.current.getContext("2d")?.drawImage(img, 0, 0);
-                const image = imageRef.current
-                    .getContext("2d")
-                    ?.getImageData(0, 0, img.width, img.height);
+                const context = imageRef.current.getContext("2d");
+                if (context === null) return;
+                context.drawImage(img, 0, 0);
+                const image = context.getImageData(0, 0, img.width, img.height);
                 setImage(image);
+                setCompressed(false);
+                setCompressedImage(undefined);
+                setOriginalImage(copyImageData(context, image));
             });
             if (
                 event.target === null ||
@@ -64,6 +97,46 @@ function Visualiser({ imageView }: Props): JSX.Element {
         });
         reader.readAsDataURL(file);
     };
+
+    useEffect(() => {
+        workerRef.current = new Worker(
+            new URL("../../worker.ts", import.meta.url),
+        );
+        workerRef.current.onmessage = (event: MessageEvent<workerResponse>) => {
+            const progressBarContainer =
+                document.getElementById("imgCompProgress");
+            const progressBar = document.getElementById("myBar");
+            if (event.data.perc) {
+                if (progressBar)
+                    progressBar.style.height = event.data.perc.toString() + "%";
+                return;
+            }
+            if (event.data.algo === "k-means") {
+                const imageArray = event.data.imageData;
+                const pixelArray = event.data.pixelData;
+                if (event.data.imageView) {
+                    let imageData: Uint8ClampedArray =
+                        Uint8ClampedArray.from(imageArray);
+                    if (image === undefined) return;
+                    image.data.set(imageData);
+                    const context = imageRef.current?.getContext("2d");
+                    if (!context) return;
+                    context.putImageData(image, 0, 0);
+                    if (progressBarContainer && progressBar) {
+                        progressBarContainer.style.display = "none";
+                        progressBar.style.height = "0%";
+                    }
+                    setCompressed(true);
+                    setCompressedImage(copyImageData(context, image));
+                } else {
+                    setColors(pixelArray);
+                }
+            }
+        };
+        return () => {
+            if (workerRef.current) workerRef.current.terminate();
+        };
+    }, [image]);
 
     useEffect(() => {
         if (displayColPick || document.querySelector(".ds-selector-area")) {
@@ -91,7 +164,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                         );
                     });
                     setDisplayColPick(true);
-                    setColAvg(kMeans(selectedColors, 1)[0]);
+                    setColAvg(kMeans(selectedColors, 1, false)[0]);
                     dragSelect.stop();
                 }
             });
@@ -179,8 +252,12 @@ function Visualiser({ imageView }: Props): JSX.Element {
     };
 
     const onCompress = () => {
+        const colArray: Array<Array<number>> = [];
         if (imageView) {
-            const colArray: Array<Array<number>> = [];
+            const progressBar = document.getElementById("imgCompProgress");
+            if (progressBar !== null) {
+                progressBar.style.display = "block";
+            }
             if (image === undefined) return;
             for (let i = 0; i < image.data.length; i += 4) {
                 const newCol: Array<number> = [];
@@ -190,12 +267,13 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 colArray.push(newCol);
             }
             if (algo === "k-means") {
-                const imageArray = kMeans(colArray, k, true);
-                let imageData: Uint8ClampedArray =
-                    Uint8ClampedArray.from(imageArray);
-                image.data.set(imageData);
-                setImage(image);
-                imageRef.current?.getContext("2d")?.putImageData(image, 0, 0);
+                if (workerRef.current === undefined) return;
+                workerRef.current.postMessage({
+                    algo: algo,
+                    colArray: colArray,
+                    image: imageView,
+                    k: k,
+                });
             }
             if (algo === "dct") {
                 const dctVals: DCT = dct(colArray, rows, columns, quality);
@@ -207,7 +285,13 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 Object.values(col),
             );
             if (algo === "k-means") {
-                setColors(kMeans(colArray, k, false));
+                if (workerRef.current === undefined) return;
+                workerRef.current.postMessage({
+                    algo: algo,
+                    colArray: colArray,
+                    image: imageView,
+                    k: k,
+                });
             }
             if (algo === "dct") {
                 const dctVals: DCT = dct(colArray, rows, columns, quality);
@@ -215,6 +299,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 setCompRatio(dctVals.compRatio.toPrecision(3));
             }
         }
+        setShowOriginal(true);
     };
 
     const onRandomize = () => {
@@ -232,6 +317,30 @@ function Visualiser({ imageView }: Props): JSX.Element {
         setCompRatio("0");
     };
 
+    const onOriginalImage = () => {
+        if (imageRef.current === null) return;
+        const context = imageRef.current.getContext("2d");
+        if (
+            image === undefined ||
+            context === null ||
+            originalImage === undefined ||
+            compressedImage === undefined
+        )
+            return;
+        context.putImageData(
+            showOriginal ? originalImage : compressedImage,
+            0,
+            0,
+        );
+        setImage(copyImageData(context, originalImage));
+        setShowOriginal(!showOriginal);
+    };
+
+    const onCanvasClick = () => {
+        if (inputImageButtonRef.current === null) return;
+        inputImageButtonRef.current.click();
+    };
+
     const onImageDrag = (event: DragEvent) => {
         event.stopPropagation();
         event.preventDefault();
@@ -246,6 +355,17 @@ function Visualiser({ imageView }: Props): JSX.Element {
         if (event.dataTransfer === null) return;
         const fileList = event.dataTransfer.files;
 
+        readImage(fileList[0]);
+    };
+
+    const onImageClick = () => {
+        if (inputImageRef.current === null) return;
+        inputImageRef.current.click();
+    };
+
+    const onImageInput = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files === null) return;
+        const fileList = event.target.files;
         readImage(fileList[0]);
     };
 
@@ -312,7 +432,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
     }
 
     const optionsK: Array<JSX.Element> = [];
-    for (let i = 1; i < Math.min(17, columns * rows); i++) {
+    for (let i = 1; i < (imageView ? 65 : Math.min(17, columns * rows)); i++) {
         optionsK.push(
             <option value={i} key={i}>
                 {i}
@@ -323,11 +443,11 @@ function Visualiser({ imageView }: Props): JSX.Element {
     return (
         <div
             id="visualiser"
-            className="flex items-center justify-evenly m-auto flex-col sm:flex-row h-screen-90 w-screen-95"
+            className="m-auto flex h-screen-90 w-screen-95 flex-col items-center justify-evenly sm:flex-row"
         >
             <div
                 id="visualiserMenu"
-                className="flex flex-wrap relative justify-center content-center h-[calc(100vh-7.5vh-95vw)] w-full sm:h-full sm:w-screen-20 sm:float-left"
+                className="relative flex h-[calc(100vh-7.5vh-95vw)] w-full flex-wrap content-center justify-center sm:float-left sm:h-full sm:w-screen-20"
             >
                 {imageView ? null : (
                     <MByNDropdown
@@ -339,11 +459,11 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 )}
                 <div
                     id="algoSelectContainer"
-                    className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5"
+                    className="flex h-1/3 w-1/2 items-center sm:h-1/5 sm:w-full"
                 >
                     <select
                         id="algoSelect"
-                        className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full h-[90%]"
+                        className="h-[90%] w-full cursor-pointer rounded-xl border-2 border-teal-50 bg-zinc-800 text-center font-mono text-3xl text-white"
                         ref={compSelectRef}
                         value={algo}
                         onChange={algoChange}
@@ -358,17 +478,17 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 {algo === "k-means" ? (
                     <div
                         id="kSelectContainer"
-                        className="flex items-center w-1/2 h-1/3 sm:w-full sm:h-1/5"
+                        className="flex h-1/3 w-1/2 items-center sm:h-1/5 sm:w-full"
                     >
                         <div
                             id="kSelectTitle"
-                            className="text-white font-mono text-3xl w-fit mr-1 ml-1 sm:ml-0"
+                            className="mr-1 ml-1 w-fit font-mono text-3xl text-white sm:ml-0"
                         >
                             K:
                         </div>
                         <select
                             id="kSelect"
-                            className="text-white bg-zinc-800 cursor-pointer text-center border-2 border-teal-50 rounded-xl font-mono text-3xl w-full h-1/2"
+                            className="h-1/2 w-full cursor-pointer rounded-xl border-2 border-teal-50 bg-zinc-800 text-center font-mono text-3xl text-white"
                             value={k}
                             onChange={(e) => setK(parseInt(e.target.value, 10))}
                         >
@@ -378,11 +498,11 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 ) : algo === "dct" ? (
                     <div
                         id="dctQualitySliderContainer"
-                        className="flex flex-col items-center justify-evenly w-1/2 h-1/3 sm:w-full sm:h-1/5"
+                        className="flex h-1/3 w-1/2 flex-col items-center justify-evenly sm:h-1/5 sm:w-full"
                     >
                         <div
                             id="kSelectTitle"
-                            className="text-white font-mono text-3xl w-fit mr-1 ml-1 sm:ml-0"
+                            className="mr-1 ml-1 w-fit font-mono text-3xl text-white sm:ml-0"
                         >
                             {`Quality: ${quality}`}
                         </div>
@@ -395,7 +515,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                             onChange={(e) =>
                                 setQuality(parseInt(e.target.value, 10))
                             }
-                            className="w-[90%] h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                            className="h-2 w-[90%] cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
                         ></input>
                     </div>
                 ) : null}
@@ -407,7 +527,18 @@ function Visualiser({ imageView }: Props): JSX.Element {
                             : "Compress"
                     }
                 />
-                {imageView ? null : (
+                {imageView ? (
+                    compressed ? (
+                        <CompressButton
+                            onClick={onOriginalImage}
+                            title={
+                                showOriginal
+                                    ? "Original Image"
+                                    : "Compressed Image"
+                            }
+                        />
+                    ) : null
+                ) : (
                     <CompressButton
                         onClick={onRandomize}
                         title="Randomize Colors"
@@ -420,11 +551,25 @@ function Visualiser({ imageView }: Props): JSX.Element {
                     className="flex flex-col items-center justify-center"
                     style={containerStyle}
                 >
+                    <input
+                        id="imageInput"
+                        type="file"
+                        className="hidden"
+                        ref={inputImageRef}
+                        onChangeCapture={onImageInput}
+                        accept="image/*"
+                    ></input>
+                    <button
+                        onClick={onImageClick}
+                        ref={inputImageButtonRef}
+                        className="hidden"
+                    ></button>
                     <canvas
                         id="image"
-                        className="flex flex-wrap h-[80%] justify-center border-2 border-teal-50 rounded-xl overflow-hidden bg-cover"
+                        className="flex h-[80%] cursor-pointer flex-wrap justify-center overflow-hidden rounded-xl border-2 border-teal-50 bg-cover"
                         style={imageStyle}
                         ref={imageRef}
+                        onClick={onCanvasClick}
                         onDragOver={onImageDrag}
                         onDrop={onImageDrop}
                     ></canvas>
@@ -455,6 +600,17 @@ function Visualiser({ imageView }: Props): JSX.Element {
                     </div>
                 </div>
             )}
+            {imageView ? (
+                <div
+                    id="imgCompProgress"
+                    className="relative hidden h-1/5 w-full overflow-hidden rounded-xl border-2 border-teal-50 sm:h-full sm:w-screen-5"
+                >
+                    <div
+                        id="myBar"
+                        className="absolute bottom-0 h-[0%] w-full bg-green-300 transition-all"
+                    ></div>
+                </div>
+            ) : null}
         </div>
     );
 }

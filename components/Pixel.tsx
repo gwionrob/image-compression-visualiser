@@ -14,13 +14,13 @@ function Pixel({ id, innerRef, color, style }: Props) {
     return (
         <div
             id={id}
-            className="relative border-2 border-teal-50 rounded-xl overflow-hidden"
+            className="relative overflow-hidden rounded-xl border-2 border-teal-50"
             ref={innerRef}
             style={style}
         >
             <button
                 id={`${id}Button`}
-                className="h-full w-full border-none cursor-pointer"
+                className="h-full w-full cursor-pointer border-none"
                 type="button"
                 aria-label="pixel-button"
                 style={{

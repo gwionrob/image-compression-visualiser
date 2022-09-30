@@ -10,12 +10,42 @@ function clustersMatchPerc(prevClusters, clusters) {
 }
 
 function kMeans(colors, k, imageView) {
-    const kmeansVals = kmeans(colors, k, {
+    const kmeansGenerator = kmeans(colors, k, {
         initialization: "kmeans++",
+        withIterations: true,
     });
 
-    const finalClusters = kmeansVals.clusters;
-    const finalCentroids = kmeansVals.centroids;
+    const centroidIterations = [];
+
+    const clusterIterations = [];
+
+    let algoConverged = false;
+    let prevClusters = [];
+
+    while (!algoConverged) {
+        const nextIter = kmeansGenerator.next();
+        if (imageView) {
+            const perc = clustersMatchPerc(
+                prevClusters,
+                nextIter.value.clusters,
+            );
+            const scaledPerc = Math.max((perc - 99) * 100, 0);
+            document.getElementById("myBar").style.height = scaledPerc;
+        }
+
+        prevClusters = [...nextIter.value.clusters];
+        algoConverged = nextIter.value.converged;
+        if (
+            !algoConverged ||
+            (algoConverged && centroidIterations.length === 0)
+        ) {
+            centroidIterations.push([...nextIter.value.centroids]);
+            clusterIterations.push([...nextIter.value.clusters]);
+        }
+    }
+
+    const finalClusters = clusterIterations[clusterIterations.length - 1];
+    const finalCentroids = centroidIterations[centroidIterations.length - 1];
 
     const newColors = [];
 
@@ -40,24 +70,45 @@ function kMeans(colors, k, imageView) {
 }
 
 function kMeansGenerator(colors, k) {
-    return (kMeansGenerator = kmeans(colors, k, {
+    return kmeans(colors, k, {
         initialization: "kmeans++",
         withIterations: true,
-        maxIterations: 500,
-    }));
+    });
 }
 
-function kMeansStep(kMeansGen, currentIter) {
-    const algoConverged = currentIter.value.converged;
-    const prevClusters = [...currentIter.value.clusters];
+function kMeansStep(kMeansGen) {
+    const algoConverged = kMeansGen.value.converged;
+    const prevClusters = kMeansGen.value.clusters;
 
     if (!algoConverged) {
-        const nextIter = kMeansGen.next();
+        const nextIter = kmeansGenerator.next();
         const perc = clustersMatchPerc(prevClusters, nextIter.value.clusters);
         const scaledPerc = Math.max((perc - 99) * 100, 0);
-        return { currentIter: nextIter, perc: scaledPerc };
+        return { kMeansGen: nextIter, perc: scaledPerc };
     } else {
-        return { currentIter: currentIter, perc: 100 };
+        const finalClusters = kMeansGen.value.clusters;
+        const finalCentroids = kMeansGen.value.centroids;
+
+        const newColors = [];
+
+        for (let i = 0; i < finalClusters.length; i++) {
+            let newCol = finalCentroids[finalClusters[i]].centroid;
+            newCol = newCol.map((p) => Math.round(p));
+            if (imageView) {
+                newColors.push(newCol[0]);
+                newColors.push(newCol[1]);
+                newColors.push(newCol[2]);
+                newColors.push(255);
+            } else {
+                newColors.push({
+                    r: newCol[0],
+                    g: newCol[1],
+                    b: newCol[2],
+                });
+            }
+        }
+
+        return { kMeansGen: nextIter, perc: 100 };
     }
 }
 
@@ -181,4 +232,4 @@ function dct(colors, rows, columns, quality) {
     return { colors: newColors, compRatio: compRatio };
 }
 
-export { kMeans, kMeansGenerator, kMeansStep, dct };
+export { kMeans, kMeansGenerator, dct };
