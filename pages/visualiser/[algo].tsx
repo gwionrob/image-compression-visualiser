@@ -12,6 +12,8 @@ import MByNDropdown from "../../components/MByNDropdown";
 import Pixel from "../../components/Pixel";
 import { kMeans, dct } from "../../utilities/algorithms";
 import useIsMobile from "../../hooks/useIsMobile";
+import uploadImg from "../../public/upload-image.png";
+import NextImage from "next/image";
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
 
@@ -398,6 +400,13 @@ function Visualiser({ imageView }: Props): JSX.Element {
     const imageStyle: React.CSSProperties = {
         width: `${isMobile ? "95vw" : "55vw"}`,
         height: `${isMobile ? "95vw" : "55vw"}`,
+        maxWidth: "90vh",
+        maxHeight: "90vh",
+    };
+
+    const preImageDisplayStyle: React.CSSProperties = {
+        width: `${isMobile ? "95vw" : "55vw"}`,
+        maxWidth: "90vh",
     };
 
     const pixels: Array<JSX.Element> = [];
@@ -566,13 +575,36 @@ function Visualiser({ imageView }: Props): JSX.Element {
                     ></button>
                     <canvas
                         id="image"
-                        className="flex h-[80%] cursor-pointer flex-wrap justify-center overflow-hidden rounded-xl border-2 border-teal-50 bg-cover"
+                        className="absolute cursor-pointer overflow-hidden rounded-xl border-2 border-teal-50 bg-cover"
                         style={imageStyle}
                         ref={imageRef}
                         onClick={onCanvasClick}
                         onDragOver={onImageDrag}
                         onDrop={onImageDrop}
                     ></canvas>
+                    {image ? null : (
+                        <div
+                            id="pre-image-upload-display"
+                            className="absolute z-10 flex cursor-pointer flex-col items-center"
+                            style={preImageDisplayStyle}
+                        >
+                            <div
+                                id="upload-image-wrapper"
+                                className="h-1/4 w-1/4"
+                            >
+                                <NextImage
+                                    layout="responsive"
+                                    src={uploadImg}
+                                    alt="uploadImg button icon"
+                                />
+                            </div>
+                            <p className="w-full text-center font-mono text-3xl text-white">
+                                {isMobile
+                                    ? "Tap here to upload image:"
+                                    : "Drag and Drop or click here to upload image:"}
+                            </p>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div
