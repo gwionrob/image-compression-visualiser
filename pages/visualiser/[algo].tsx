@@ -586,6 +586,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                         <div
                             id="pre-image-upload-display"
                             className="absolute z-10 flex cursor-pointer flex-col items-center"
+                            onClick={onCanvasClick}
                             style={preImageDisplayStyle}
                         >
                             <div
