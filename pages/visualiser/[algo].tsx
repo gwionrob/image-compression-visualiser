@@ -280,7 +280,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 if (workerRef.current === undefined) return;
                 workerRef.current.postMessage({
                     algo: algo,
-                    imageData: colors,
+                    colorData: colors,
                     isImage: imageView,
                     k: k,
                 });
