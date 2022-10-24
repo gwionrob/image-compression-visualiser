@@ -85,7 +85,6 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 if (context === null) return;
                 context.drawImage(img, 0, 0);
                 const image = context.getImageData(0, 0, img.width, img.height);
-                console.log(image.data.length);
                 setImage(image);
                 setCompressed(false);
                 setCompressedImage(undefined);
@@ -262,19 +261,12 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 progressBar.style.display = "block";
             }
             if (image === undefined) return;
-            for (let i = 0; i < image.data.length; i += 4) {
-                const newCol: Array<number> = [];
-                newCol.push(image.data[i]);
-                newCol.push(image.data[i + 1]);
-                newCol.push(image.data[i + 2]);
-                colArray.push(newCol);
-            }
             if (algo === "k-means") {
                 if (workerRef.current === undefined) return;
                 workerRef.current.postMessage({
                     algo: algo,
-                    colArray: colArray,
-                    image: imageView,
+                    imageData: image.data,
+                    isImage: imageView,
                     k: k,
                 });
             }
@@ -284,15 +276,12 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 setCompRatio(dctVals.compRatio.toPrecision(3));
             }
         } else {
-            const colArray: Array<Array<number>> = colors.map((col) =>
-                Object.values(col),
-            );
             if (algo === "k-means") {
                 if (workerRef.current === undefined) return;
                 workerRef.current.postMessage({
                     algo: algo,
-                    colArray: colArray,
-                    image: imageView,
+                    imageData: colors,
+                    isImage: imageView,
                     k: k,
                 });
             }

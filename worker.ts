@@ -5,20 +5,31 @@ import {
     dct,
 } from "./utilities/algorithms";
 
+type RGB = { r: number; g: number; b: number };
 type preProssesedImage = {
     algo: string;
-    colArray: Array<number>;
-    image: boolean;
+    isImage: boolean;
+    imageData: Array<number>;
+    colorData: Array<RGB>;
     k: number;
 };
 
 addEventListener("message", (event: MessageEvent<preProssesedImage>) => {
     const algo = event.data.algo;
-    const colArray = event.data.colArray;
-    const image = event.data.image;
+    const isImage = event.data.isImage;
+    const imageData = event.data.imageData;
+    const colorData = event.data.colorData;
+    const colArray: Array<Array<number>> = [];
     const k = event.data.k;
     if (algo === "k-means") {
-        if (image) {
+        if (isImage) {
+            for (let i = 0; i < imageData.length; i += 4) {
+                const newCol: Array<number> = [];
+                newCol.push(imageData[i]);
+                newCol.push(imageData[i + 1]);
+                newCol.push(imageData[i + 2]);
+                colArray.push(newCol);
+            }
             const generator = kMeansGenerator(colArray, k);
             let step = kMeansStep(generator, generator.next());
 
@@ -36,7 +47,7 @@ addEventListener("message", (event: MessageEvent<preProssesedImage>) => {
             for (let i = 0; i < finalClusters.length; i++) {
                 let newCol = finalCentroids[finalClusters[i]].centroid;
                 newCol = newCol.map((p: number) => Math.round(p));
-                if (image) {
+                if (isImage) {
                     newColors.push(newCol[0]);
                     newColors.push(newCol[1]);
                     newColors.push(newCol[2]);
@@ -53,13 +64,16 @@ addEventListener("message", (event: MessageEvent<preProssesedImage>) => {
             postMessage({
                 algo: algo,
                 imageData: newColors,
-                imageView: image,
+                imageView: isImage,
             });
         } else {
+            const colArray: Array<Array<number>> = colorData.map((col) =>
+                Object.values(col),
+            );
             postMessage({
                 algo: algo,
-                pixelData: kMeans(colArray, k, image),
-                imageView: image,
+                pixelData: kMeans(colArray, k, isImage),
+                imageView: isImage,
             });
         }
     } else if (algo === "dct") {
