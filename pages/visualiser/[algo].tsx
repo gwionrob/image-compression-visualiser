@@ -85,6 +85,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 if (context === null) return;
                 context.drawImage(img, 0, 0);
                 const image = context.getImageData(0, 0, img.width, img.height);
+                console.log(image.data.length);
                 setImage(image);
                 setCompressed(false);
                 setCompressedImage(undefined);
