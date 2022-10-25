@@ -81,7 +81,9 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 if (imageRef.current === null) return;
                 imageRef.current.width = img.width;
                 imageRef.current.height = img.height;
-                const context = imageRef.current.getContext("2d");
+                const context = imageRef.current.getContext("2d", {
+                    willReadFrequently: true,
+                });
                 if (context === null) return;
                 context.drawImage(img, 0, 0);
                 const image = context.getImageData(0, 0, img.width, img.height);
@@ -265,7 +267,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                 if (workerRef.current === undefined) return;
                 workerRef.current.postMessage({
                     algo: algo,
-                    imageData: image.data,
+                    imageData: image.data.buffer,
                     isImage: imageView,
                     k: k,
                 });
