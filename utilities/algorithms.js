@@ -40,11 +40,11 @@ function kMeans(colors, k, imageView) {
 }
 
 function kMeansGenerator(colors, k) {
-    return (kMeansGenerator = kmeans(colors, k, {
+    return kmeans(colors, k, {
         initialization: "kmeans++",
         withIterations: true,
         maxIterations: 500,
-    }));
+    });
 }
 
 function kMeansStep(kMeansGen, currentIter) {
