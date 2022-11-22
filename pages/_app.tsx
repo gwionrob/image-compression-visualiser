@@ -70,6 +70,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                                         id="imageViewToggle"
                                         type="checkbox"
                                         className="sr-only"
+                                        defaultChecked={imageView}
                                         onChange={(e) => {
                                             setImageView(e.target.checked);
                                         }}
