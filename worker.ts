@@ -12,15 +12,21 @@ type preProssesedImage = {
     imageData: Array<number>;
     colorData: Array<RGB>;
     k: number;
+    rows: number;
+    columns: number;
+    quality: number;
 };
 
 addEventListener("message", (event: MessageEvent<preProssesedImage>) => {
     const algo = event.data.algo;
     const isImage = event.data.isImage;
+    const k = event.data.k;
+    const rows = event.data.rows;
+    const columns = event.data.columns;
+    const quality = event.data.quality;
     const imageData = new Uint8ClampedArray(event.data.imageData);
     const colorData = event.data.colorData;
     const colArray: Array<Array<number>> = [];
-    const k = event.data.k;
     if (algo === "k-means") {
         if (isImage) {
             for (let i = 0; i < imageData.length; i += 4) {
@@ -72,10 +78,26 @@ addEventListener("message", (event: MessageEvent<preProssesedImage>) => {
             );
             postMessage({
                 algo: algo,
-                pixelData: kMeans(colArray, k, isImage),
+                kmeansData: kMeans(colArray, k, isImage),
                 imageView: isImage,
             });
         }
     } else if (algo === "dct") {
+        if (isImage) {
+            postMessage({
+                algo: algo,
+                dctData: [],
+                imageView: isImage,
+            });
+        } else {
+            const colArray: Array<Array<number>> = colorData.map((col) =>
+                Object.values(col),
+            );
+            postMessage({
+                algo: algo,
+                dctData: dct(colArray, rows, columns, quality),
+                imageView: isImage,
+            });
+        }
     }
 });

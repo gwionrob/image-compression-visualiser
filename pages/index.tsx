@@ -1,7 +1,10 @@
 import React from "react";
+import Visualiser from "./[algo]";
 
-function Home(): JSX.Element {
-    return <div>Home</div>;
+type Props = { imageView: boolean };
+
+function Home({ imageView }: Props): JSX.Element {
+    return <Visualiser imageView={imageView}></Visualiser>;
 }
 
 export default Home;

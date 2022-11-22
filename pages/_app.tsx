@@ -56,7 +56,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                             alt="sidenav button icon"
                         />
                     </button>
-                    {algo ? (
+                    {algo || router.pathname === "/" ? (
                         <div className="mr-3 flex w-fit items-center justify-center">
                             <label
                                 htmlFor="imageViewToggle"

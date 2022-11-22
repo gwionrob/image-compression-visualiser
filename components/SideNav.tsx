@@ -32,32 +32,6 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
             >
                 X
             </button>
-            <Link href="/">
-                <a
-                    id="homeLink"
-                    className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
-                    onClick={closeNav}
-                    style={
-                        router.pathname === "/" ? { color: "red" } : undefined
-                    }
-                >
-                    Home
-                </a>
-            </Link>
-            <Link href="/about">
-                <a
-                    id="aboutLink"
-                    className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
-                    onClick={closeNav}
-                    style={
-                        router.pathname === "/about"
-                            ? { color: "red" }
-                            : undefined
-                    }
-                >
-                    About
-                </a>
-            </Link>
             <button
                 id="visualiserToggle"
                 className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap text-left font-mono text-2xl text-red-700 no-underline hover:text-[red]"
@@ -76,7 +50,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 className="ml-[50px] flex flex-col overflow-hidden transition-all duration-200 ease-in"
                 style={{ height: ddHeight }}
             >
-                <Link href="/visualiser/k-means">
+                <Link href="/k-means">
                     <a
                         id="kMeansLink"
                         className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
@@ -90,7 +64,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                         K-Means
                     </a>
                 </Link>
-                <Link href="/visualiser/dct">
+                <Link href="/dct">
                     <a
                         id="dctLink"
                         className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
@@ -104,7 +78,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                         Discrete Cosine Transform
                     </a>
                 </Link>
-                <Link href="/visualiser/fractal-compression">
+                <Link href="/fractal-compression">
                     <a
                         id="fracCompLink"
                         className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
@@ -119,6 +93,20 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                     </a>
                 </Link>
             </div>
+            <Link href="/about">
+                <a
+                    id="aboutLink"
+                    className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
+                    onClick={closeNav}
+                    style={
+                        router.pathname === "/about"
+                            ? { color: "red" }
+                            : undefined
+                    }
+                >
+                    About
+                </a>
+            </Link>
         </div>
     );
 }
