@@ -589,6 +589,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                                 layout="responsive"
                                 src={loader}
                                 alt="loader icon"
+                                unoptimized={true}
                             />
                         </div>
                     ) : null}
