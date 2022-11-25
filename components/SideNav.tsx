@@ -38,7 +38,9 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                 type="button"
                 onClick={toggleDd}
                 style={
-                    ["K M", "Dis", "Fra"].includes(currentTab.slice(0, 3))
+                    ["K M", "Dct", "Fra", "Ima"].includes(
+                        currentTab.slice(0, 3),
+                    )
                         ? { color: "red" }
                         : undefined
                 }
@@ -56,7 +58,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                         className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
                         onClick={closeNav}
                         style={
-                            currentTab.slice(0, 3) === "K M"
+                            ["K M", "Ima"].includes(currentTab.slice(0, 3))
                                 ? { color: "red" }
                                 : undefined
                         }
@@ -70,7 +72,7 @@ function SideNav({ navWidth, closeNav, currentTab }: Props): JSX.Element {
                         className="mt-[50px] ml-[30px] cursor-pointer whitespace-nowrap font-mono text-2xl text-red-700 no-underline hover:text-[red]"
                         onClick={closeNav}
                         style={
-                            currentTab.slice(0, 3) === "Dis"
+                            currentTab.slice(0, 3) === "Dct"
                                 ? { color: "red" }
                                 : undefined
                         }

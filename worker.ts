@@ -37,17 +37,9 @@ addEventListener("message", (event: MessageEvent<preProssesedImage>) => {
                 colArray.push(newCol);
             }
             const generator = kMeansGenerator(colArray, k);
-            let step = kMeansStep(generator, generator.next());
 
-            while (step.perc !== 100) {
-                postMessage({
-                    perc: step.perc,
-                });
-                step = kMeansStep(generator, step.currentIter);
-            }
-            const finalClusters = step.currentIter.value.clusters;
-            const finalCentroids = step.currentIter.value.centroids;
-
+            const finalClusters = generator.clusters;
+            const finalCentroids = generator.centroids;
             const newColors = [];
 
             for (let i = 0; i < finalClusters.length; i++) {

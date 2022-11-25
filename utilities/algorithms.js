@@ -42,7 +42,6 @@ function kMeans(colors, k, imageView) {
 function kMeansGenerator(colors, k) {
     return kmeans(colors, k, {
         initialization: "kmeans++",
-        withIterations: true,
         maxIterations: 500,
     });
 }

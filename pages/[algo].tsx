@@ -13,6 +13,7 @@ import Pixel from "../components/Pixel";
 import { kMeans } from "../utilities/algorithms";
 import useIsMobile from "../hooks/useIsMobile";
 import uploadImg from "../public/upload-image.png";
+import loader from "../public/blocks-loading.png";
 import NextImage from "next/image";
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
@@ -26,7 +27,6 @@ type workerResponse = {
     kmeansData: Array<RGB>;
     dctData: DCT;
     imageView: boolean;
-    perc: number;
 };
 
 function copyImageData(ctx: CanvasRenderingContext2D, src: ImageData) {
@@ -42,6 +42,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
     const [isHue, setIsHue] = useState<boolean>(false);
     const [colAvg, setColAvg] = useState<RGB>({ r: 0, g: 0, b: 0 });
     const [compressed, setCompressed] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [displayColPick, setDisplayColPick] = useState<boolean>(false);
     const [showOriginal, setShowOriginal] = useState<boolean>(true);
     const [selectedPixels, setSelectedPixels] = useState<Array<HTMLDivElement>>(
@@ -108,14 +109,6 @@ function Visualiser({ imageView }: Props): JSX.Element {
             new URL("../worker.ts", import.meta.url),
         );
         workerRef.current.onmessage = (event: MessageEvent<workerResponse>) => {
-            const progressBarContainer =
-                document.getElementById("imgCompProgress");
-            const progressBar = document.getElementById("myBar");
-            if (event.data.perc) {
-                if (progressBar)
-                    progressBar.style.height = event.data.perc.toString() + "%";
-                return;
-            }
             const imageArray = event.data.imageData;
             const kmeansData = event.data.kmeansData;
             const dctData = event.data.dctData;
@@ -128,10 +121,7 @@ function Visualiser({ imageView }: Props): JSX.Element {
                     const context = imageRef.current?.getContext("2d");
                     if (!context) return;
                     context.putImageData(image, 0, 0);
-                    if (progressBarContainer && progressBar) {
-                        progressBarContainer.style.display = "none";
-                        progressBar.style.height = "0%";
-                    }
+                    setLoading(false);
                     setCompressed(true);
                     setCompressedImage(copyImageData(context, image));
                 } else {
@@ -140,11 +130,6 @@ function Visualiser({ imageView }: Props): JSX.Element {
             }
             if (event.data.algo === "dct") {
                 if (event.data.imageView) {
-                    if (progressBarContainer && progressBar) {
-                        progressBarContainer.style.display = "none";
-                        progressBar.style.height = "0%";
-                    }
-                    return;
                 } else {
                     setColors(dctData.colors);
                     setCompRatio(dctData.compRatio.toPrecision(3));
@@ -270,12 +255,8 @@ function Visualiser({ imageView }: Props): JSX.Element {
     };
 
     const onCompress = () => {
-        const colArray: Array<Array<number>> = [];
         if (imageView) {
-            const progressBar = document.getElementById("imgCompProgress");
-            if (progressBar !== null) {
-                progressBar.style.display = "block";
-            }
+            setLoading(true);
             if (image === undefined) return;
             if (algo === "k-means") {
                 if (workerRef.current === undefined) return;
@@ -598,8 +579,19 @@ function Visualiser({ imageView }: Props): JSX.Element {
                         ref={imageRef}
                         onClick={onCanvasClick}
                         onDragOver={onImageDrag}
-                        onDrop={onImageDrop}
                     ></canvas>
+                    {loading ? (
+                        <div
+                            id="loading-image-wrapper"
+                            className="h-{fit-content} w-1/4"
+                        >
+                            <NextImage
+                                layout="responsive"
+                                src={loader}
+                                alt="loader icon"
+                            />
+                        </div>
+                    ) : null}
                     {image ? null : (
                         <div
                             id="pre-image-upload-display"
@@ -651,17 +643,6 @@ function Visualiser({ imageView }: Props): JSX.Element {
                     </div>
                 </div>
             )}
-            {imageView ? (
-                <div
-                    id="imgCompProgress"
-                    className="relative hidden h-1/5 w-full overflow-hidden rounded-xl border-2 border-teal-50 sm:h-full sm:w-screen-5"
-                >
-                    <div
-                        id="myBar"
-                        className="absolute bottom-0 h-[0%] w-full bg-green-300 transition-all"
-                    ></div>
-                </div>
-            ) : null}
         </div>
     );
 }
